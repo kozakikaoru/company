@@ -55,10 +55,16 @@ Claude Code 内で以下を実行:
 ### 起動
 
 ```
-/company
+/company:hisho
 ```
 
-または会話の中で:
+または
+
+```
+/company:company
+```
+
+会話の中で呼ぶこともできます:
 
 ```
 秘書ちゃんお願い
