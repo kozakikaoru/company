@@ -1,0 +1,15 @@
+{
+  "name": "company-marketplace",
+  "owner": {
+    "name": "kayu"
+  },
+  "description": "仮想会社プラグインのマーケットプレイス",
+  "plugins": [
+    {
+      "name": "company",
+      "source": ".",
+      "description": "あなた専用の仮想会社。秘書ちゃんが受付になり、PM・アーキテクト・エンジニア・デザイナー・QA・セキュリティ・マーケ・ビジネス・リサーチャーの9つの専門家に作業を振り分けます。",
+      "version": "0.1.0"
+    }
+  ]
+}
