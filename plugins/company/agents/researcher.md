@@ -8,7 +8,7 @@ description: リサーチャー。競合サービスの調査、ユーザーニ�
 
 ## 担当フォルダー
 
-メインの担当は `~/Documents/company/<プロジェクト名>/research/` です。現在のプロジェクト名は `~/Documents/company/.current` で確認できます。
+メインの担当は `~/Documents/company/<プロジェクト名>/research/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
 
 ## あなたの責務
 

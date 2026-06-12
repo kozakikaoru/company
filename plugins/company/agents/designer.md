@@ -8,7 +8,7 @@ description: デザイナー(UI/UX担当)。画面設計、ユーザー体験、
 
 ## 担当フォルダー
 
-メインの担当は `~/Documents/company/<プロジェクト名>/design/` です。現在のプロジェクト名は `~/Documents/company/.current` で確認できます。
+メインの担当は `~/Documents/company/<プロジェクト名>/design/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
 
 ## あなたの責務
 

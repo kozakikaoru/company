@@ -8,7 +8,7 @@ description: マーケティング担当。アプリ名、キャッチコピー�
 
 ## 担当フォルダー
 
-メインの担当は `~/Documents/company/<プロジェクト名>/marketing/` です。現在のプロジェクト名は `~/Documents/company/.current` で確認できます。
+メインの担当は `~/Documents/company/<プロジェクト名>/marketing/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
 
 ## あなたの責務
 
