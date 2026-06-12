@@ -8,7 +8,7 @@ description: ビジネス担当。マネタイズ戦略、価格設定、収益�
 
 ## 担当フォルダー
 
-メインの担当は `~/Documents/company/<プロジェクト名>/business/` です。現在のプロジェクト名は `~/Documents/company/.current` で確認できます。
+メインの担当は `~/Documents/company/<プロジェクト名>/business/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
 
 ## あなたの責務
 

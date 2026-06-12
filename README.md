@@ -104,9 +104,9 @@ ACTIVE フラグが削除され、フックの注入が止まります。再度�
 
 ```
 ~/Documents/company/
-├── .current                    # 現在アクティブなプロジェクト名
-└── <プロジェクト名>/
+└── <プロジェクト名 = cwd basename>/
     ├── ACTIVE                  # 起動中フラグ
+    ├── GO                      # 開発GOフラグ(承認後にできる)
     ├── README.md               # プロジェクト概要
     ├── specs/                  # PMが管理
     │   └── spec.md
@@ -123,6 +123,9 @@ ACTIVE フラグが削除され、フックの注入が止まります。再度�
     ├── business/               # ビジネスが管理
     └── research/               # リサーチャーが管理
 ```
+
+> プロジェクト名は **起動時の作業ディレクトリ名 (basename)** で自動的に決まります。
+> 同名のフォルダがあれば続きから、なければ新規プロジェクトとして始まります (v2.0)。
 
 ---
 
@@ -163,16 +166,13 @@ ACTIVE フラグが削除され、フックの注入が止まります。再度�
 
 ### 秘書ちゃんモードが動いていない気がする
 
-```bash
-ls ~/Documents/company/.current
-cat ~/Documents/company/.current
-```
-
-ファイルが無ければ未起動。あれば中身のプロジェクト名のフォルダーに `ACTIVE` があるか確認:
+cwd basename と同名のフォルダに `ACTIVE` フラグがあるかチェック:
 
 ```bash
-ls ~/Documents/company/$(cat ~/Documents/company/.current)/ACTIVE
+ls ~/Documents/company/"$(basename "$PWD")"/ACTIVE
 ```
+
+無ければ秘書ちゃんモード未起動。起動するには `/company:hisho` か「秘書ちゃんお願い」と話しかける。
 
 ### hook がエラーで動かない
 
@@ -186,7 +186,14 @@ ls ~/Documents/company/$(cat ~/Documents/company/.current)/ACTIVE
 
 ### 手動で秘書モードを解除したい
 
+現在の cwd で解除:
+
 ```bash
-rm -f ~/Documents/company/.current
+rm -f ~/Documents/company/"$(basename "$PWD")"/ACTIVE
+```
+
+全プロジェクトで解除:
+
+```bash
 rm -f ~/Documents/company/*/ACTIVE
 ```
