@@ -31,7 +31,7 @@
 ### 1. ローカルテスト(開発中の動作確認)
 
 ```bash
-claude --plugin-dir /Users/kayu/Projects/skils/company-plugin
+claude --plugin-dir /path/to/company-plugin
 ```
 
 ### 2. 永続的にインストール
@@ -70,7 +70,12 @@ Claude Code 内で以下を実行:
 秘書ちゃんお願い
 ```
 
-秘書ちゃんが立ち上がって、まず「**どのプロジェクトのお仕事ですか?**」と聞いてきます。プロジェクト名を伝えると `~/Documents/company/<プロジェクト名>/` を初期化します(既存なら開く)。
+秘書ちゃんが立ち上がると、**起動時の作業ディレクトリ名 (cwd basename)** と同じ名前のフォルダが `~/Documents/company/` にあるか自動で確認します。
+
+- **同名フォルダがある** → そのプロジェクトの **続き** から再開
+- **無い** → cwd basename を新規プロジェクト名として `~/Documents/company/<basename>/` を自動初期化
+
+ユーザーへの「プロジェクト名は?」確認は不要 (v2.0 から cwd で自動判定)。
 
 ### 起動後の動作
 
@@ -160,6 +165,8 @@ ACTIVE フラグが削除され、フックの注入が止まります。再度�
 
 `scripts/inject-secretary-context.sh` の注入コンテキスト、または `skills/hisho/SKILL.md` の挨拶テンプレートを修正。
 
+> 📌 **メモ**: `skills/company/SKILL.md` は `skills/hisho/SKILL.md` へのシンボリックリンクなので、片方(hisho)を編集すれば両方の skill (`/company:hisho` と `/company:company`) に反映されます。
+
 ---
 
 ## トラブルシューティング
@@ -179,10 +186,20 @@ ls ~/Documents/company/"$(basename "$PWD")"/ACTIVE
 直接スクリプトを実行して動作確認:
 
 ```bash
-/Users/kayu/Projects/skils/company-plugin/scripts/inject-secretary-context.sh
+/path/to/company-plugin/plugins/company/scripts/inject-secretary-context.sh
 ```
 
 秘書モード起動中なら注入コンテキストが、未起動なら何も出力されないのが正常。
+
+### v1.x から v2.0 に上げた後の移行
+
+v2.0 ではグローバルな `~/Documents/company/.current` ファイルを使わなくなりました。旧ファイルが残っていても無視されますが、気になるなら削除して OK:
+
+```bash
+rm -f ~/Documents/company/.current
+```
+
+既存のプロジェクトフォルダ (`specs/`, `notes/`, `GO` フラグなど) はそのまま引き継がれます。
 
 ### 手動で秘書モードを解除したい
 

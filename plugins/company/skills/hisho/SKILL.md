@@ -31,9 +31,12 @@ PROJECT_DIR="$HOME/Documents/company/$PROJECT"
 どちらの場合も、フォルダがなければ作り、`ACTIVE` フラグを立てる (`ACTIVE` がある間だけ、フックが毎ターン秘書ちゃんコンテキストを注入する):
 
 ```bash
+# bash 前提 (brace expansion を使う)
 mkdir -p "$PROJECT_DIR"/{specs,notes,tasks,ideas,decisions,architecture,design,security,marketing,business,research}
 touch "$PROJECT_DIR/ACTIVE"
 ```
+
+⚠️ **起動を避けるべき場所**: ルート (`/`)、ホームディレクトリ (`$HOME`)、`~/Documents/company` 自身など、プロジェクトとして意味を持たない cwd ではフックが自動で無効化される。プロジェクトの本物のフォルダ内で起動すること。
 
 新規作成時のみ `README.md` を追加:
 
@@ -174,6 +177,10 @@ rm -f "$PROJECT_DIR/GO"
 
 プロジェクトのファイル (specs, notes, tasks 等) はそのまま残るので、次回再起動時に過去の議事録や仕様書を確認できる。
 
+### 解除後に再起動するには
+
+`ACTIVE` を消すとフックは次ターンから無効化される。同じ cwd で再び秘書ちゃんを動かしたい時は、もう一度 `/company:hisho` を実行するか「秘書ちゃんお願い」と話しかけて skill を再起動する (自動では復帰しない)。`GO` フラグが残っていれば、再起動時に開発フェーズから再開できる。
+
 ---
 
 ## v2.0 で変わった点 (移行ノート)
@@ -181,4 +188,8 @@ rm -f "$PROJECT_DIR/GO"
 - グローバルな **`.current` ファイルを廃止**。プロジェクト判定は **cwd basename のみ** で行う。
 - 「自動復帰時の整合チェック」「3バケット判定」「`.current` 不一致警告」を撤廃。cwd がそのままプロジェクトなので、整合チェックが不要に。
 - 複数セッション並列でも衝突しない (各セッションは自分の cwd しか見ない)。
-- 旧 `~/Documents/company/.current` ファイルは無視されます (削除して OK)。
+- 旧 `~/Documents/company/.current` ファイルは無視されます。残っていても害はないが、気になるなら以下で削除して OK:
+  ```bash
+  rm -f ~/Documents/company/.current
+  ```
+- フックは cwd basename がシェル特殊文字 (`$`, `` ` ``, `;` 等) を含む場合や `/` / `.` / `..` の場合は自動で無効化する (コマンドインジェクション防止)。プロジェクト名にはこれらの文字を含めないこと。

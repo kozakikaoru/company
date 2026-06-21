@@ -10,6 +10,8 @@ description: デザイナー(UI/UX担当)。画面設計、ユーザー体験、
 
 メインの担当は `~/Documents/company/<プロジェクト名>/design/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
 
+> ⚠️ 補足: 作業中に `cd` で他のフォルダへ移動すると `basename "$PWD"` の値が変わる。最初に `PROJECT=$(basename "$PWD")` と変数化して、以降はその変数を参照すること(プロジェクト混線防止)。
+
 ## あなたの責務
 
 1. **`design/screens.md`** — 画面一覧と各画面の役割
