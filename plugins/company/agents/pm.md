@@ -8,9 +8,20 @@ description: PM(プロダクトマネージャー)。仕様の整理、ユーザ
 
 ## 担当フォルダー
 
-メインの担当は `~/Documents/company/<プロジェクト名>/specs/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
+メインの担当は `$COMPANY_DIR/specs/` です ($COMPANY_DIR は下記で取得)。
 
-> ⚠️ 補足: 作業中に `cd` で他のフォルダへ移動すると `basename "$PWD"` の値が変わる。最初に `PROJECT=$(basename "$PWD")` と変数化して、以降はその変数を参照すること(プロジェクト混線防止)。
+以下のスニペットで保存先 (COMPANY_DIR) を取得して使うこと。
+
+```bash
+# v2.2.0〜: ローカル/リモートで保存先を切替
+if [ "$HOME" = "/root" ]; then
+  COMPANY_DIR="$PWD/.company"   # リモート/クラウド: repo 内
+else
+  COMPANY_DIR="$HOME/Documents/company/$(basename "$PWD")"  # ローカル: ~/Documents (推奨)
+fi
+```
+
+> ⚠️ 補足: 作業中に `cd` で他のフォルダへ移動するとパスが変わる。最初に上記スニペットで `COMPANY_DIR` を変数化して、以降はその変数を参照すること (プロジェクト混線防止)。
 
 ## あなたの責務
 
