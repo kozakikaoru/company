@@ -1,25 +1,21 @@
 #!/bin/bash
-# PreToolUse hook for the "company" plugin (v2.1.0).
-# 秘書ちゃん起動直後 (STARTUP_LOCK が存在する間) は特定ツールを物理的にブロックする。
-# SKILL.md の「挨拶以外何もしない」ルールを Claude が読み飛ばしても、
-# ハーネス側でツール実行を止めることで起動時の暴走を防ぐ。
+# PreToolUse hook for the "company" plugin (v2.3.0).
+# トリガーターン (=「秘書よろ」等の起動直後ターン) は対象ツールを物理ブロックする。
+# トリガーターン判定は UserPromptSubmit (inject-secretary-context.sh) が
+# /tmp/company-plugin-trigger-turn を作るかどうかで行う。
 #
-# STARTUP_LOCK のライフサイクル:
-#   - 作成: SKILL の init bash の最後で `touch` される
-#   - 削除: 次の UserPromptSubmit (=次のユーザー発言) で削除される
-#   - つまり STARTUP_LOCK がある間 = 「起動直後のターンで、まだユーザーから次の指示が来ていない」状態
+# 旧 STARTUP_LOCK ベース (v2.1.0/2.2.0) はトリガー検出の方が直接的なので置換。
 
 set -e
 
-# stdin から JSON 入力を読む (Claude Code は tool_name 等を JSON で渡す)
+# stdin から JSON 入力を読む
 INPUT=$(cat 2>/dev/null || echo "{}")
 
-# tool_name を取り出す (python3 を使うのが確実)
+# tool_name を取り出す
 TOOL_NAME=$(printf '%s' "$INPUT" | python3 -c "
 import sys, json
 try:
-    d = json.load(sys.stdin)
-    print(d.get('tool_name', ''))
+    print(json.load(sys.stdin).get('tool_name', ''))
 except Exception:
     print('')
 " 2>/dev/null || echo "")
@@ -30,41 +26,27 @@ case "$TOOL_NAME" in
   *) exit 0 ;;
 esac
 
-# プロジェクトの STARTUP_LOCK 確認
-CWD=$(pwd)
-PROJECT=$(basename "$CWD")
+# トリガーマーカー (UserPromptSubmit が現ターンを「純粋トリガー」と判定すると作る)
+TRIGGER_MARKER="/tmp/company-plugin-trigger-turn"
 
-# 特殊ディレクトリ・危険文字を含む basename はスルー (UserPromptSubmit hook と同じガード)
-case "$PROJECT" in
-  ""|"."|".."|"/") exit 0 ;;
-  *\$*|*\`*|*\;*|*\&*|*\|*|*\<*|*\>*|*\(*|*\)*|*\{*|*\}*|*\"*|*\'*|*\\*|*$'\n'*) exit 0 ;;
-esac
-
-# 保存先の決定 (v2.2.0〜): リモート (クラウド container, $HOME=/root) では .company/ in cwd
-if [ "$HOME" = "/root" ]; then
-  LOCK="$CWD/.company/STARTUP_LOCK"
-else
-  LOCK="$HOME/Documents/company/$PROJECT/STARTUP_LOCK"
+if [ ! -f "$TRIGGER_MARKER" ]; then
+  exit 0  # 通常ターン → ツール使用 OK
 fi
 
-# ロックが存在しない → 通常通り (このターンはツール使用 OK)
-if [ ! -f "$LOCK" ]; then
-  exit 0
-fi
-
-# 起動直後のターン: 対象ツールをブロック
-# exit 2 で stderr メッセージが Claude にフィードバックされる (拒否理由として LLM に渡る)
+# トリガーターン: 対象ツールを物理拒否
 cat >&2 <<EOF
-🚨 [company plugin] 秘書ちゃん起動直後は '${TOOL_NAME}' ツールは使えません。
+🚨 [company plugin] 秘書ちゃん起動直後のターンは '${TOOL_NAME}' ツールは使えません。
 
 このターンは「挨拶テキスト」だけを返してください。次の作業はすべて禁止です:
-  ❌ Bash で git/ls/cat 等の状況把握
+  ❌ Bash 実行 (フォルダ作成・初期化・状況把握、すべて含む)
   ❌ Read で README や spec.md を読む
   ❌ Grep / Glob でファイル探索
   ❌ AskUserQuestion (クリック式選択肢UI)
   ❌ Agent ツールでサブエージェント呼び出し
   ❌ 「現状報告」「方向性確認」「最初の一手」などの先回り提案
+  ❌ プロジェクトフォルダの作成・初期化 (それも次のターン)
 
-ユーザーが次のメッセージで具体的な指示を出してから、通常通り使えるようになります。
+ユーザーが次のメッセージで具体的な指示を出してから、init bash や調査も含めて
+通常通り使えるようになります。
 EOF
 exit 2
