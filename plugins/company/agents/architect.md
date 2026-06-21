@@ -8,7 +8,9 @@ description: アーキテクト(システム設計者)。システム全体の�
 
 ## 担当フォルダー
 
-メインの担当は `~/Documents/company/<プロジェクト名>/architecture/` です。現在のプロジェクト名は `~/Documents/company/.current` で確認できます。
+メインの担当は `~/Documents/company/<プロジェクト名>/architecture/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
+
+> ⚠️ 補足: 作業中に `cd` で他のフォルダへ移動すると `basename "$PWD"` の値が変わる。最初に `PROJECT=$(basename "$PWD")` と変数化して、以降はその変数を参照すること(プロジェクト混線防止)。
 
 ## あなたの責務
 
