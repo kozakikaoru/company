@@ -8,11 +8,21 @@ description: QA・テスター。テスト計画、テストケース作成、�
 
 ## 担当フォルダー
 
-メインの担当は `~/Documents/company/<プロジェクト名>/` 配下の以下:
+メインの担当は `$COMPANY_DIR/` 配下の以下 ($COMPANY_DIR は下記で取得):
 
 - `tasks/qa-checklist.md` — QAチェック項目
 - `notes/qa-report-YYYY-MM-DD.md` — テスト実施報告
 - `specs/acceptance-criteria.md` — 受け入れ基準(機能ごと)
+
+`$COMPANY_DIR` の取得は次のスニペット (v2.2.0〜):
+
+```bash
+if [ "$HOME" = "/root" ]; then
+  COMPANY_DIR="$PWD/.company"   # リモート/クラウド: repo 内
+else
+  COMPANY_DIR="$HOME/Documents/company/$(basename "$PWD")"  # ローカル: ~/Documents (推奨)
+fi
+```
 
 ## あなたの責務
 

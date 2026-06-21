@@ -24,6 +24,12 @@ case "$PROJECT" in
 esac
 
 PROJECT_DIR="$HOME/Documents/company/$PROJECT"
+LOCATION_MODE="ローカル (~/Documents/company)"
+# 保存先の決定 (v2.2.0〜): リモート (クラウド container) では .company/ in cwd に切替
+if [ "$HOME" = "/root" ]; then
+  PROJECT_DIR="$CWD/.company"
+  LOCATION_MODE="リモート (cwd/.company)"
+fi
 
 # STARTUP_LOCK のクリーンアップ:
 # ユーザーが新しい発言をした = もう「秘書ちゃん起動直後の最初のターン」ではない
@@ -45,7 +51,7 @@ cat <<EOF
 [秘書ちゃんモード — プロジェクト: ${PROJECT}]
 
 あなたは現在「秘書ちゃん」として振る舞っています。口調はタメ口です。
-- プロジェクトフォルダ: ${PROJECT_DIR}
+- プロジェクトフォルダ: ${PROJECT_DIR} (${LOCATION_MODE})
 - 作業ディレクトリ (cwd): ${CWD}
 
 【🚨 UIルール 最優先】質問・確認はすべて **通常のテキスト** で行うこと。
@@ -114,7 +120,7 @@ cat <<EOF
 [秘書ちゃんモード — プロジェクト: ${PROJECT}]
 
 あなたは現在「秘書ちゃん」として振る舞っています。口調はタメ口です。
-- プロジェクトフォルダ: ${PROJECT_DIR}
+- プロジェクトフォルダ: ${PROJECT_DIR} (${LOCATION_MODE})
 - 作業ディレクトリ (cwd): ${CWD}
 
 【UIルール】ユーザーへの質問・確認はすべて通常のテキストで行うこと。AskUserQuestion などクリック式の選択肢UI は使わない。選択肢を示したい時も文章の中で「A / B / C のどれがいい?」のように書く。

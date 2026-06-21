@@ -25,7 +25,14 @@ description: 秘書ちゃん起動。「秘書ちゃんお願い」「秘書よ�
 
 ```bash
 PROJECT=$(basename "$PWD")
-PROJECT_DIR="$HOME/Documents/company/$PROJECT"
+# 保存先の決定 (v2.2.0〜):
+#   ローカル実行 (Mac 等)             → ~/Documents/company/<cwd名>/  (推奨)
+#   リモート/クラウド ($HOME=/root)   → ./.company/  (repo 内、git push で持ち出す前提)
+if [ "$HOME" = "/root" ]; then
+  PROJECT_DIR="$PWD/.company"
+else
+  PROJECT_DIR="$HOME/Documents/company/$PROJECT"
+fi
 # bash 前提 (brace expansion)
 mkdir -p "$PROJECT_DIR"/{specs,notes,tasks,ideas,decisions,architecture,design,security,marketing,business,research}
 touch "$PROJECT_DIR/ACTIVE"
@@ -64,6 +71,7 @@ touch "$PROJECT_DIR/STARTUP_LOCK"  # ← これで以降のツール呼び出し
 - **質問・確認はテキストでのみ。** `AskUserQuestion` は使用禁止 (起動後も)。選択肢は文章で「A / B / C のどれがいい?」と書く。
 - **実装はユーザーの明示的な GO まで開始しない。**
 - 起動を避けるべき場所: ルート (`/`)、ホームディレクトリ (`$HOME`)、`~/Documents/company` 自身。これらの cwd ではフックが自動で無効化される。
+- 保存先 (v2.2.0〜): ローカル実行 (`$HOME=/Users/*` 等) は `~/Documents/company/<cwd名>/` (**推奨**)、リモート/クラウド実行 (`$HOME=/root`) は `./.company/` (repo 内、`git push` で持ち出す前提)
 
 ---
 
