@@ -1,10 +1,23 @@
 #!/bin/bash
-# UserPromptSubmit hook for the "company" plugin (v2.0).
-# プロジェクトは cwd basename で決まる:
-#   ~/Documents/company/<cwd basename>/ACTIVE があれば秘書ちゃんモードを注入する。
-# 起動中でない (or 該当フォルダが無い) 時は何も出力せず exit 0。
+# UserPromptSubmit hook for the "company" plugin (v2.3.0).
+# 役割:
+#   1. ユーザー発言が「秘書ちゃんトリガーフレーズだけ」の場合、
+#      TRIGGER_MARKER を立てて PreToolUse が全ツールを物理ブロックするよう促す
+#      (v2.3.0〜: ターン1 = 純粋テキスト挨拶のみを実現するため)
+#   2. それ以外のターンは TRIGGER_MARKER を消す + 通常のコンテキスト注入
+#   3. プロジェクト保存先は HOME=/root 分岐 (v2.2.0〜)
 
 set -e
+
+# stdin から JSON 入力を読む (Claude Code は prompt 等を JSON で渡す)
+INPUT=$(cat 2>/dev/null || echo "{}")
+USER_PROMPT=$(printf '%s' "$INPUT" | python3 -c "
+import sys, json
+try:
+    print(json.load(sys.stdin).get('prompt', ''))
+except Exception:
+    print('')
+" 2>/dev/null || echo "")
 
 CWD=$(pwd)
 PROJECT=$(basename "$CWD")
@@ -23,17 +36,34 @@ case "$PROJECT" in
     exit 0 ;;
 esac
 
+# === 保存先の決定 (v2.2.0〜) ===
 PROJECT_DIR="$HOME/Documents/company/$PROJECT"
 LOCATION_MODE="ローカル (~/Documents/company)"
-# 保存先の決定 (v2.2.0〜): リモート (クラウド container) では .company/ in cwd に切替
 if [ "$HOME" = "/root" ]; then
   PROJECT_DIR="$CWD/.company"
   LOCATION_MODE="リモート (cwd/.company)"
 fi
 
-# STARTUP_LOCK のクリーンアップ:
-# ユーザーが新しい発言をした = もう「秘書ちゃん起動直後の最初のターン」ではない
-# → ロックを外して、以降の PreToolUse でツールが使えるようにする
+# === v2.3.0: トリガーターン検出 ===
+# 純粋なトリガーフレーズだけの発言 (= ユーザーがまだ具体的な指示をしていない、起動直後ターン)
+# を検出して、TRIGGER_MARKER を立てる。PreToolUse がそれを見て全ツールを拒否する。
+TRIGGER_MARKER="/tmp/company-plugin-trigger-turn"
+# 前ターンの残りをまず消す (毎ターン最初にリセット)
+rm -f "$TRIGGER_MARKER" 2>/dev/null || true
+if [ -n "$USER_PROMPT" ]; then
+  # トリガーフレーズを全て削除して、何か残るか確認
+  STRIPPED=$(printf '%s' "$USER_PROMPT" \
+    | sed -E 's|秘書ちゃんお願い||g; s|秘書よろ||g; s|秘書お願い||g; s|秘書ちゃん||g; s|/company:hisho||g; s|/company:company||g' \
+    | tr -d '[:space:]、。!?！？～~・,\.\?\!')
+  # 「秘書」単体は (より広いマッチを避けるため) 残り判定で別途処理
+  if [ "$STRIPPED" = "秘書" ]; then STRIPPED=""; fi
+  if [ -z "$STRIPPED" ]; then
+    # 純粋トリガーターン → このターンはツール禁止 (挨拶テキストのみ)
+    touch "$TRIGGER_MARKER" 2>/dev/null || true
+  fi
+fi
+
+# 旧 STARTUP_LOCK のクリーンアップ (v2.1.0/2.2.0 互換、もう使わないが残ってたら消す)
 rm -f "$PROJECT_DIR/STARTUP_LOCK" 2>/dev/null || true
 
 # このフォルダが秘書ちゃん管理下じゃない → 何もしない
