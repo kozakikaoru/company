@@ -25,6 +25,11 @@ esac
 
 PROJECT_DIR="$HOME/Documents/company/$PROJECT"
 
+# STARTUP_LOCK のクリーンアップ:
+# ユーザーが新しい発言をした = もう「秘書ちゃん起動直後の最初のターン」ではない
+# → ロックを外して、以降の PreToolUse でツールが使えるようにする
+rm -f "$PROJECT_DIR/STARTUP_LOCK" 2>/dev/null || true
+
 # このフォルダが秘書ちゃん管理下じゃない → 何もしない
 if [ ! -d "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/ACTIVE" ]; then
   exit 0

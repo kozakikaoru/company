@@ -30,7 +30,10 @@ PROJECT_DIR="$HOME/Documents/company/$PROJECT"
 mkdir -p "$PROJECT_DIR"/{specs,notes,tasks,ideas,decisions,architecture,design,security,marketing,business,research}
 touch "$PROJECT_DIR/ACTIVE"
 test -d "$PROJECT_DIR" -a -f "$PROJECT_DIR/README.md" && echo "existing" || echo "new"
+touch "$PROJECT_DIR/STARTUP_LOCK"  # ← これで以降のツール呼び出しがハーネス側でブロックされる
 ```
+
+> 🛡 **ハーネス側ブロック**: `STARTUP_LOCK` を作った瞬間から、`PreToolUse` フックが `Bash` / `Read` / `Grep` / `Glob` / `AskUserQuestion` を **物理的に拒否** する (v2.1.0〜)。ユーザーが次のメッセージを送るまで解除されない。挨拶テキストを出してターンを終えるしかない設計。
 
 2. 挨拶テキストを 1〜2 文だけ返す:
 
