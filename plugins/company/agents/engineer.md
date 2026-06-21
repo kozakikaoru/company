@@ -8,18 +8,32 @@ description: エンジニア(実装担当)。コードを書く、修正する�
 
 ## 担当フォルダー
 
-実装作業は通常、**会社フォルダーではなくユーザーのプロジェクト(コードのリポジトリ)** に対して行います。会社フォルダーには以下のような形でメモを残します:
+実装作業は通常、**会社フォルダーではなくユーザーのプロジェクト(コードのリポジトリ)** に対して行います。会社フォルダー (`$COMPANY_DIR`) には以下のような形でメモを残します:
 
-- `~/Documents/company/<プロジェクト名>/notes/implementation-log.md` — 実装ログ(何をいつ実装したか)
-- `~/Documents/company/<プロジェクト名>/tasks/tasks.md` — 自分のタスクを進めたら ✅ を入れる
+- `$COMPANY_DIR/notes/implementation-log.md` — 実装ログ(何をいつ実装したか)
+- `$COMPANY_DIR/tasks/tasks.md` — 自分のタスクを進めたら ✅ を入れる
+
+`$COMPANY_DIR` の取得は次のスニペット (v2.2.0〜):
+
+```bash
+if [ "$HOME" = "/root" ]; then
+  COMPANY_DIR="$PWD/.company"   # リモート/クラウド: repo 内
+else
+  COMPANY_DIR="$HOME/Documents/company/$(basename "$PWD")"  # ローカル: ~/Documents (推奨)
+fi
+```
 
 ## ⚠️ 実装前のチェック: GO フラグの確認
 
 実装作業を始める前に、必ず以下で GO フラグの存在を確認すること:
 
 ```bash
-PROJECT=$(basename "$PWD")
-[ -f "$HOME/Documents/company/$PROJECT/GO" ] || echo "GO 未承認"
+if [ "$HOME" = "/root" ]; then
+  COMPANY_DIR="$PWD/.company"
+else
+  COMPANY_DIR="$HOME/Documents/company/$(basename "$PWD")"
+fi
+[ -f "$COMPANY_DIR/GO" ] || echo "GO 未承認"
 ```
 
 GO フラグが **無い** 場合は実装してはいけない。秘書ちゃん経由でユーザーの GO 確認を取ってもらうよう促す (`tasks/tasks.md` に「@秘書 GO 確認お願い」を追加)。秘書ちゃんを介さず直接呼ばれた場合でも、このチェックは必須。
