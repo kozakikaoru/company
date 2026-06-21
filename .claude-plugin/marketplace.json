@@ -1,6 +1,6 @@
 {
   "name": "company-marketplace",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "owner": {
     "name": "kayu"
   },
@@ -9,8 +9,8 @@
     {
       "name": "company",
       "source": "./plugins/company",
-      "description": "[v2.2.0] あなた専用の仮想会社。秘書ちゃんが受付になり、PM・アーキテクト・エンジニア・デザイナー・QA・セキュリティ・マーケ・ビジネス・リサーチャーの9つの専門家に作業を振り分けます。ローカル実行 (推奨) は ~/Documents/company/<cwd名>/ に、リモート/クラウド ($HOME=/root) は ./.company/ に保存。起動直後の暴走は PreToolUse でハーネス側ブロック。",
-      "version": "2.2.0"
+      "description": "[v2.3.0] あなた専用の仮想会社。秘書ちゃんが受付になり、PM・アーキテクト・エンジニア・デザイナー・QA・セキュリティ・マーケ・ビジネス・リサーチャーの9つの専門家に作業を振り分けます。ローカル実行 (推奨) は ~/Documents/company/<cwd名>/ に、リモート ($HOME=/root) は ./.company/ に保存。起動直後ターンは挨拶のみ (init bash も含めて全ツール禁止)、ユーザー指示後の次ターンで初めて init を実行。",
+      "version": "2.3.0"
     }
   ]
 }
