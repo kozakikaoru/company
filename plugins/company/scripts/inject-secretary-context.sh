@@ -8,6 +8,21 @@ set -e
 
 CWD=$(pwd)
 PROJECT=$(basename "$CWD")
+
+# 安全性ガード: 特殊ディレクトリ名や空文字を弾く
+# (cwd=/ や $HOME 直下、~/Documents/company 自身 などで起動した時の事故防止)
+case "$PROJECT" in
+  ""|"."|".."|"/") exit 0 ;;
+esac
+
+# コマンドインジェクション防止: シェル特殊文字を含む basename は処理しない
+# (cwd 名に $(...) やバッククォート等が含まれていると、注入テキストに残り
+#  Claude が後で Bash に転記した時に実行されうるため)
+case "$PROJECT" in
+  *\$*|*\`*|*\;*|*\&*|*\|*|*\<*|*\>*|*\(*|*\)*|*\{*|*\}*|*\"*|*\'*|*\\*|*$'\n'*)
+    exit 0 ;;
+esac
+
 PROJECT_DIR="$HOME/Documents/company/$PROJECT"
 
 # このフォルダが秘書ちゃん管理下じゃない → 何もしない

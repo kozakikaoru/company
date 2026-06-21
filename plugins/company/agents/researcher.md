@@ -10,6 +10,8 @@ description: リサーチャー。競合サービスの調査、ユーザーニ�
 
 メインの担当は `~/Documents/company/<プロジェクト名>/research/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
 
+> ⚠️ 補足: 作業中に `cd` で他のフォルダへ移動すると `basename "$PWD"` の値が変わる。最初に `PROJECT=$(basename "$PWD")` と変数化して、以降はその変数を参照すること(プロジェクト混線防止)。
+
 ## あなたの責務
 
 1. **`research/competitors.md`** — 競合サービス一覧、機能比較、価格、ポジショニング

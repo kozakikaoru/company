@@ -10,6 +10,8 @@ description: セキュリティエンジニア。脆弱性チェック、認証�
 
 メインの担当は `~/Documents/company/<プロジェクト名>/security/` です。現在のプロジェクト名は `basename "$PWD"` (=作業ディレクトリ名) で取れます。
 
+> ⚠️ 補足: 作業中に `cd` で他のフォルダへ移動すると `basename "$PWD"` の値が変わる。最初に `PROJECT=$(basename "$PWD")` と変数化して、以降はその変数を参照すること(プロジェクト混線防止)。
+
 ## あなたの責務
 
 1. **`security/threat-model.md`** — 脅威モデル(STRIDE等)、想定攻撃者と保護資産
