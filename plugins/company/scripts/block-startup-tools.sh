@@ -40,7 +40,12 @@ case "$PROJECT" in
   *\$*|*\`*|*\;*|*\&*|*\|*|*\<*|*\>*|*\(*|*\)*|*\{*|*\}*|*\"*|*\'*|*\\*|*$'\n'*) exit 0 ;;
 esac
 
-LOCK="$HOME/Documents/company/$PROJECT/STARTUP_LOCK"
+# 保存先の決定 (v2.2.0〜): リモート (クラウド container, $HOME=/root) では .company/ in cwd
+if [ "$HOME" = "/root" ]; then
+  LOCK="$CWD/.company/STARTUP_LOCK"
+else
+  LOCK="$HOME/Documents/company/$PROJECT/STARTUP_LOCK"
+fi
 
 # ロックが存在しない → 通常通り (このターンはツール使用 OK)
 if [ ! -f "$LOCK" ]; then
