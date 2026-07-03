@@ -58,6 +58,10 @@ Claude Code のプラグインマーケットプレイスに追加、または `
 
 **`/company:secretary`** で起動 (v3.0.1〜: 起動方法はこれのみ、phrase トリガー「秘書よろ」等は廃止)
 
+### README 作成 (`/company:readme`)
+
+`/company:readme` で **ポートフォリオ用 README** を作成できる (v3.1.0〜)。採用担当・エージェント・他開発者が読む想定の、素朴で誠実なトーンの README を、決まった構成・粒度で生成する。技術スタックやディレクトリ構成はリポジトリから自動抽出し、不足情報だけ確認。いきなり `README.md` を上書きせず `docs/README-draft.md` に草案を書いてレビューを挟む。秘書ちゃんモード中に「README 作って」と頼んでも発動する。
+
 ### 起動時の挙動 (v3.0 の 2 段階起動)
 
 **ターン 1** (`/company:secretary` コマンドだけ): 挨拶テキストのみ、ツール使用ゼロ (`PreToolUse` フックが Bash/Read/AskUserQuestion 等を `exit 2` で物理拒否)
