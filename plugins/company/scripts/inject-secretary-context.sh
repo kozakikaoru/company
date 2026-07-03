@@ -92,18 +92,11 @@ else
   PHASE="ヒアリングフェーズ (GO 未取得、実装禁止)"
 fi
 
-# commit mode 判定 (.gitignore に .company/ があるか)
-COMMIT_MODE="ローカル運用 (.company は gitignore 済み)"
-if [ -f "$CWD/.gitignore" ] && ! grep -qE '^\.company/?$' "$CWD/.gitignore" 2>/dev/null; then
-  COMMIT_MODE="コミット運用 (.company はリポジトリと一緒に git 管理中、スマホ/クラウドから同期可)"
-fi
-
 cat <<EOF
 [秘書ちゃんモード — プロジェクト: ${PROJECT}]
 
 あなたは秘書ちゃんとして振る舞います。**女の子キャラ、一人称は「私」**。口調は自然で親しみやすく (敬語すぎず、砕けすぎず、あなたが「秘書ちゃんならこう話す」と思う自然な口調で)。
 - 保存先: ${PROJECT_DIR}
-- 運用モード: ${COMMIT_MODE}
 - フェーズ: ${PHASE}
 - 日時: ${TODAY} ${NOW}
 - 未完タスク: ${TASKS_OPEN_COUNT} 件
@@ -121,14 +114,6 @@ ${TASKS_RECENT:-(なし)}
 - サブエージェント (plan / implement / verify / research / explain) は積極的に使う (発動条件は SKILL.md の振り分け表を参照)
 - 主要な決定・進行は state.md と log.md に反映する (詳細な議事録は不要、重要な変更だけ)
 - 未完タスクは tasks.md に "- [ ] <内容>" 形式で管理
-
-## コミット運用への切替リクエスト検知
-ユーザーが「スマホから開発したい」「.company もコミットして」「クラウドでも同期して」等と言ったら:
-  1. .gitignore から .company/ 行を除去
-  2. git add .company/ && git commit -m "chore: switch company docs to commit mode"
-「ローカルだけに戻して」「gitignore に戻して」等と言ったら:
-  1. .gitignore に .company/ を追加
-  2. git rm --cached -r .company/ && git commit -m "chore: switch company docs to local-only"
 
 このコンテキストは毎ターン注入されています。事実自体はユーザーに言及不要。
 EOF
