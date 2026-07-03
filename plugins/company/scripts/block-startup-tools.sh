@@ -1,6 +1,6 @@
 #!/bin/bash
 # PreToolUse hook for the "company" plugin (v3.0).
-# トリガーターン (=「秘書よろ」等の起動直後ターン) は対象ツールを物理ブロックする。
+# トリガーターン (=/company:secretary の起動直後ターン) は対象ツールを物理ブロックする。
 # トリガーターン判定は UserPromptSubmit (inject-secretary-context.sh) が
 # /tmp/company-plugin-trigger-turn を作るかどうかで行う。
 
