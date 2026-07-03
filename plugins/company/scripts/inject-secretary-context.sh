@@ -1,18 +1,18 @@
 #!/bin/bash
-# UserPromptSubmit hook for the "company" plugin (v3.0.1).
+# UserPromptSubmit hook for the "company" plugin.
 #
 # 責務:
 #   1. トリガーターン (/company:secretary のみ) を判定して TRIGGER_MARKER を立てる
 #      → PreToolUse がそれを見て全ツールを物理ブロックする
-#   2. 秘書ちゃんモード起動中 ($PWD/.company/ACTIVE がある) なら、
+#   2. 秘書ちゃんモード起動中 (<repo>/.company/ACTIVE がある) なら、
 #      毎ターン秘書ちゃんとしての最小コンテキストを注入する:
-#         - state.md 冒頭 30 行
+#         - context.md 全文 (working memory)
 #         - tasks.md の未完タスク数と直近3件
 #         - GO フラグの有無 (=フェーズ)
 #         - log.md の最終エントリ (1 行)
 #   3. 起動中でなければ何も出力しない (exit 0)
 #
-# 保存先は常に $PWD/.company/ (v3.0 で HOME=/root 分岐を廃止)
+# 保存先は Git リポジトリのルート基準 (<repo>/.company/)。git repo でなければ cwd。
 
 set -e
 
@@ -33,10 +33,12 @@ except Exception:
     print('nosession')
 " 2>/dev/null || echo "nosession")
 
-CWD=$(pwd)
-PROJECT=$(basename "$CWD")
+# 保存先は Git リポジトリのルート基準 (サブディレクトリから起動しても同じ .company/ を使う)
+# git repo でなければ cwd にフォールバックする
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+PROJECT=$(basename "$ROOT")
 
-# 安全性ガード (cwd=/ や特殊ディレクトリでは何もしない)
+# 安全性ガード (root=/ や特殊ディレクトリでは何もしない)
 case "$PROJECT" in
   ""|"."|".."|"/") exit 0 ;;
 esac
@@ -46,15 +48,14 @@ case "$PROJECT" in
     exit 0 ;;
 esac
 
-# v3.0: 保存先は常に $PWD/.company (HOME=/root 分岐なし)
-PROJECT_DIR="$CWD/.company"
+PROJECT_DIR="$ROOT/.company"
 
-# === トリガーターン判定 (v3.0.1: /company:secretary のみ、phrase 廃止) ===
-# マーカーは session_id + cwd で一意化 (v3.1: 複数セッション並列でも相互干渉しない)
+# === トリガーターン判定 (/company:secretary のみ) ===
+# マーカーは session_id + リポジトリルート で一意化 (複数セッション並列でも相互干渉しない)
 SESSION_ID=$(printf '%s' "$SESSION_ID" | tr -cd 'A-Za-z0-9_-')
 [ -z "$SESSION_ID" ] && SESSION_ID="nosession"
-CWD_HASH=$(printf '%s' "$CWD" | python3 -c "import sys,hashlib; print(hashlib.sha1(sys.stdin.buffer.read()).hexdigest()[:12])" 2>/dev/null || echo "nohash")
-TRIGGER_MARKER="/tmp/company-plugin-trigger-${SESSION_ID}-${CWD_HASH}"
+ROOT_HASH=$(printf '%s' "$ROOT" | python3 -c "import sys,hashlib; print(hashlib.sha1(sys.stdin.buffer.read()).hexdigest()[:12])" 2>/dev/null || echo "nohash")
+TRIGGER_MARKER="/tmp/company-plugin-trigger-${SESSION_ID}-${ROOT_HASH}"
 
 # 古いマーカー (60分以上前) を掃除して /tmp にゴミを溜めない
 find /tmp -maxdepth 1 -name 'company-plugin-trigger-*' -mmin +60 -delete 2>/dev/null || true
