@@ -1,5 +1,5 @@
 ---
-description: 秘書ちゃん起動 (`/company:secretary` で呼び出し)。起動時の最初のターン (=純粋にコマンドだけのメッセージ) は挨拶テキスト 1〜2 文だけを返してそこで止まる。Bash・Read・Grep・Glob・AskUserQuestion・サブエージェント、いっさい禁止 (フォルダ作成すら次のターン)。ユーザーが具体的な指示を送ってきた次のターンで初めて init bash を実行してプロジェクトを準備する。保存先は $PWD/.company/、init 時に .gitignore に .company/ を自動追記。
+description: 秘書ちゃん起動 (`/company:secretary` で呼び出し)。起動時の最初のターン (=純粋にコマンドだけのメッセージ) は挨拶テキスト 1〜2 文だけを返してそこで止まる。Bash・Read・Grep・Glob・AskUserQuestion・サブエージェント、いっさい禁止 (フォルダ作成すら次のターン)。ユーザーが具体的な指示を送ってきた次のターンで初めて init bash を実行してプロジェクトを準備する。保存先は Git リポジトリのルート直下の .company/、init 時に .gitignore に .company/ を自動追記。
 ---
 
 # 秘書ちゃん起動 (Secretary Activation)
@@ -34,8 +34,10 @@ description: 秘書ちゃん起動 (`/company:secretary` で呼び出し)。起�
 #### Step 1: init bash — プロジェクト準備 + .gitignore 追記
 
 ```bash
-PROJECT=$(basename "$PWD")
-PROJECT_DIR="$PWD/.company"
+# 保存先は Git リポジトリのルート基準 (サブディレクトリから起動しても同じ .company/ を使う)
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+PROJECT=$(basename "$ROOT")
+PROJECT_DIR="$ROOT/.company"
 
 mkdir -p "$PROJECT_DIR"
 touch "$PROJECT_DIR/ACTIVE"
@@ -76,9 +78,9 @@ TASKS_EOF
 [ -f "$PROJECT_DIR/log.md" ] || touch "$PROJECT_DIR/log.md"
 
 # .gitignore に .company/ を追記 (git repo で、まだ入っていなければ)
-if [ -d "$PWD/.git" ]; then
-  if [ ! -f "$PWD/.gitignore" ] || ! grep -qE '^\.company/?$' "$PWD/.gitignore" 2>/dev/null; then
-    echo ".company/" >> "$PWD/.gitignore"
+if git rev-parse --show-toplevel >/dev/null 2>&1; then
+  if [ ! -f "$ROOT/.gitignore" ] || ! grep -qE '^\.company/?$' "$ROOT/.gitignore" 2>/dev/null; then
+    echo ".company/" >> "$ROOT/.gitignore"
   fi
 fi
 
@@ -117,15 +119,15 @@ grep -qE '現在フォーカス: [^(（]' "$PROJECT_DIR/context.md" 2>/dev/null 
 
 **判断のコツ**: context.md の「スコープ」「技術構成」を今どれだけ埋められるか。ほとんど埋まらないなら聞き足りない、大体埋まるなら要約 → GO でよい。
 
-GO は必ずユーザーが明示的に「GO」「OK」「進めて」「作って」と言った時だけ取る:
+GO は必ずユーザーが明示的に「GO」「OK」「進めて」「作って」と言った時だけ取る (`$PROJECT_DIR` は Step 1 で決めたリポジトリルート基準のパス):
 
 ```bash
-touch "$PWD/.company/GO"
+touch "$PROJECT_DIR/GO"
 ```
 
 新しい別件の開発依頼が来たら:
 ```bash
-rm -f "$PWD/.company/GO"
+rm -f "$PROJECT_DIR/GO"
 ```
 して再ヒアリング。
 

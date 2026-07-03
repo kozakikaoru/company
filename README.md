@@ -35,20 +35,21 @@
 
 ## インストール
 
-### 1. ローカルテスト
+Claude Code 内で以下を実行する:
+
+```
+/plugin marketplace add kozakikaoru/company
+/plugin install company@company-marketplace
+/reload-plugins
+```
+
+`/plugin list` で `company` が表示されればインストール完了。以後 `/company:secretary` で起動できる。
+
+ローカルで開発・検証する場合は次の起動も使える:
 
 ```bash
-claude --plugin-dir /path/to/company-plugin
+claude --plugin-dir /path/to/company
 ```
-
-### 2. マーケットプレイスから
-
-Claude Code のプラグインマーケットプレイスに追加、または `~/.claude/plugins/` 配下に配置。
-
-```
-/plugin list
-```
-で `company` が表示されればOK。
 
 ---
 

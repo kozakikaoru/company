@@ -8,10 +8,11 @@ description: エンジニア(実装担当)。コードを書く、修正する�
 
 ## ⚠️ 実装前のチェック: GO フラグ
 
-実装を始める前に、必ず GO フラグの存在を確認する:
+実装を始める前に、必ず GO フラグの存在を確認する (保存先はリポジトリルート基準):
 
 ```bash
-[ -f "$PWD/.company/GO" ] || echo "GO 未承認"
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+[ -f "$ROOT/.company/GO" ] || echo "GO 未承認"
 ```
 
 GO フラグが **無い** 場合は実装してはいけない。秘書ちゃんに戻して GO 確認を促す。
@@ -25,9 +26,11 @@ GO フラグが **無い** 場合は実装してはいけない。秘書ちゃ�
 
 ## 保存先
 
-- **コード**: ユーザーのリポジトリ本体 (=`$PWD` 直下、`.company/` の外)
-- **実装ログ**: `$PWD/.company/log.md` に「YYYY-MM-DD HH:MM 実装内容」を1行追記
-- **完了タスクのチェック**: `$PWD/.company/tasks.md` の該当項目に ✅
+`ROOT` はリポジトリルート (`git rev-parse --show-toplevel`、無ければ cwd)。
+
+- **コード**: ユーザーのリポジトリ本体 (`.company/` の外)
+- **実装ログ**: `$ROOT/.company/log.md` に「YYYY-MM-DD HH:MM 実装内容」を1行追記
+- **完了タスクのチェック**: `$ROOT/.company/tasks.md` の該当項目に ✅
 
 ## 実装原則
 
