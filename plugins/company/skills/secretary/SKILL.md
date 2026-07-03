@@ -126,18 +126,18 @@ rm -f "$PWD/.company/GO"
 
 | 発動条件 | subagent_type | 何を返してもらう |
 |---|---|---|
-| 仕様検討・設計判断・技術選定・画面フロー・優先度判断 | `plan` | 推奨案 + 選択肢 + 判断理由 |
-| コード実装・修正・リファクタ・バグ修正 (GO 後) | `implement` | 変更差分 + 動作確認結果 |
-| テスト実行・レビュー・型/lint/セキュリティ確認 | `verify` | 合否 + 発見した問題リスト |
-| Web 検索・競合/市場調査・ライブラリ確認・エラー原因・コードベース内探索 | `research` | 事実 + 出典 + 示唆 |
-| 「これって何?」「なぜこう?」「教えて」「違いは?」 | `explain` | 要点 + 具体例 + 誤解しがちな点 |
+| 仕様検討・設計判断・技術選定・画面フロー・優先度判断 | `producer` (プロデューサー) | 推奨案 + 選択肢 + 判断理由 |
+| コード実装・修正・リファクタ・バグ修正 (GO 後) | `engineer` (エンジニア) | 変更差分 + 動作確認結果 |
+| テスト実行・レビュー・型/lint/セキュリティ確認 | `auditor` (監査役) | 合否 + 発見した問題リスト |
+| Web 検索・競合/市場調査・ライブラリ確認・エラー原因・コードベース内探索 | `analyst` (アナリスト) | 事実 + 出典 + 示唆 |
+| 「これって何?」「なぜこう?」「教えて」「違いは?」 | `advisor` (アドバイザー) | 要点 + 具体例 + 誤解しがちな点 |
 
-**並列発動 OK**。例: 「〇〇作って」→ `plan` (設計) + `research` (類似ライブラリ) を同時に走らせる。
+**並列発動 OK**。例: 「〇〇作って」→ `producer` (設計) + `analyst` (類似ライブラリ調査) を同時に走らせる。
 
 **自動フォロー**:
-- `implement` の直後は **必ず** `verify` を呼ぶ (テスト・型・lint・レビュー)
-- `plan` の結果を採用したら state.md の「決定事項」に反映する
-- `research` の結果は log.md に「YYYY-MM-DD 何を調査、結論」を 1 行追記
+- `engineer` の直後は **必ず** `auditor` を呼ぶ (テスト・型・lint・レビュー)
+- `producer` の結果を採用したら state.md の「決定事項」に反映する
+- `analyst` の結果は log.md に「YYYY-MM-DD 何を調査、結論」を 1 行追記
 
 ## フォルダ構造 (v3.0、シンプル)
 
@@ -166,6 +166,6 @@ rm -f "$PWD/.company/ACTIVE"
 
 - 旧 `~/Documents/company/<プロジェクト>/` の資料は自動移行されない。手動で必要な内容を新しい `.company/state.md` に転記推奨
 - 旧 9 フォルダ (specs/notes/decisions/...) は v3.0 では作られない
-- 旧 9 subagent (pm/architect/engineer/designer/qa/security/marketing/bizdev/researcher) は削除。5 subagent (plan/implement/verify/research/explain) に統合
+- 旧 9 subagent (pm/architect/engineer/designer/qa/security/marketing/bizdev/researcher) は削除。5 subagent (producer/engineer/auditor/analyst/advisor) に統合
 - `$HOME=/root` 分岐廃止 (ローカルもクラウドも `$PWD/.company/`)
 - v3.0.1〜: 起動方法は `/company:secretary` のみ (phrase トリガー「秘書よろ」等は廃止)

@@ -110,7 +110,7 @@ ${TASKS_RECENT:-(なし)}
 ## 全ターン共通ルール
 - 質問はテキスト、AskUserQuestion 禁止
 - 実装は GO 後のみ
-- サブエージェント (plan / implement / verify / research / explain) は積極的に使う (発動条件は SKILL.md の振り分け表を参照)
+- サブエージェント (producer / engineer / auditor / analyst / advisor) は積極的に使う (発動条件は SKILL.md の振り分け表を参照)
 - 主要な決定・進行は state.md と log.md に反映する (詳細な議事録は不要、重要な変更だけ)
 - 未完タスクは tasks.md に "- [ ] <内容>" 形式で管理
 
