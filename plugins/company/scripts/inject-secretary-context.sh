@@ -16,7 +16,7 @@
 
 set -e
 
-# stdin から JSON 入力を読む (Claude Code は prompt を JSON で渡す)
+# stdin から JSON 入力を読む (Claude Code は prompt / session_id を JSON で渡す)
 INPUT=$(cat 2>/dev/null || echo "{}")
 USER_PROMPT=$(printf '%s' "$INPUT" | python3 -c "
 import sys, json
@@ -25,6 +25,13 @@ try:
 except Exception:
     print('')
 " 2>/dev/null || echo "")
+SESSION_ID=$(printf '%s' "$INPUT" | python3 -c "
+import sys, json
+try:
+    print(json.load(sys.stdin).get('session_id', 'nosession'))
+except Exception:
+    print('nosession')
+" 2>/dev/null || echo "nosession")
 
 CWD=$(pwd)
 PROJECT=$(basename "$CWD")
@@ -43,7 +50,15 @@ esac
 PROJECT_DIR="$CWD/.company"
 
 # === トリガーターン判定 (v3.0.1: /company:secretary のみ、phrase 廃止) ===
-TRIGGER_MARKER="/tmp/company-plugin-trigger-turn"
+# マーカーは session_id + cwd で一意化 (v3.1: 複数セッション並列でも相互干渉しない)
+SESSION_ID=$(printf '%s' "$SESSION_ID" | tr -cd 'A-Za-z0-9_-')
+[ -z "$SESSION_ID" ] && SESSION_ID="nosession"
+CWD_HASH=$(printf '%s' "$CWD" | python3 -c "import sys,hashlib; print(hashlib.sha1(sys.stdin.buffer.read()).hexdigest()[:12])" 2>/dev/null || echo "nohash")
+TRIGGER_MARKER="/tmp/company-plugin-trigger-${SESSION_ID}-${CWD_HASH}"
+
+# 古いマーカー (60分以上前) を掃除して /tmp にゴミを溜めない
+find /tmp -maxdepth 1 -name 'company-plugin-trigger-*' -mmin +60 -delete 2>/dev/null || true
+
 rm -f "$TRIGGER_MARKER" 2>/dev/null || true
 if [ -n "$USER_PROMPT" ]; then
   STRIPPED=$(printf '%s' "$USER_PROMPT" \
@@ -62,12 +77,12 @@ fi
 TODAY=$(date +%Y-%m-%d)
 NOW=$(date '+%H:%M')
 
-# state.md の冒頭 30 行
-STATE_HEAD=""
-if [ -f "$PROJECT_DIR/state.md" ]; then
-  STATE_HEAD=$(head -n 30 "$PROJECT_DIR/state.md")
+# context.md 全文 (常に短く保つ working memory。毎ターン注入する)
+CONTEXT=""
+if [ -f "$PROJECT_DIR/context.md" ]; then
+  CONTEXT=$(cat "$PROJECT_DIR/context.md")
 else
-  STATE_HEAD="(state.md 未作成)"
+  CONTEXT="(context.md 未作成)"
 fi
 
 # tasks.md の未完タスク数と直近 3 件
@@ -101,8 +116,8 @@ cat <<EOF
 - 未完タスク: ${TASKS_OPEN_COUNT} 件
 - 前回の進行: ${LOG_LAST:-(なし)}
 
-## 現在の state.md (先頭 30 行)
-${STATE_HEAD}
+## 現在のコンテキスト (context.md)
+${CONTEXT}
 
 ## 直近の未完タスク (最大 3 件)
 ${TASKS_RECENT:-(なし)}
@@ -111,7 +126,7 @@ ${TASKS_RECENT:-(なし)}
 - 質問はテキスト、AskUserQuestion 禁止
 - 実装は GO 後のみ
 - サブエージェント (producer / engineer / auditor / analyst / advisor) は積極的に使う (発動条件は SKILL.md の振り分け表を参照)
-- 主要な決定・進行は state.md と log.md に反映する (詳細な議事録は不要、重要な変更だけ)
+- context.md は「今の working memory」として常に短く保つ。仕様・決定の詳細や履歴は state.md と log.md に逃がす。重要な変更があったら context.md の該当行を書き換え、確定した決定は state.md に追記する
 - 未完タスクは tasks.md に "- [ ] <内容>" 形式で管理
 
 このコンテキストは毎ターン注入されています。事実自体はユーザーに言及不要。

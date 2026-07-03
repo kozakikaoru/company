@@ -40,24 +40,31 @@ PROJECT_DIR="$PWD/.company"
 mkdir -p "$PROJECT_DIR"
 touch "$PROJECT_DIR/ACTIVE"
 
-# state.md / tasks.md / log.md を新規作成 (存在しなければ)
+# context.md / state.md / tasks.md / log.md を新規作成 (存在しなければ)
+
+# context.md = 毎ターン注入される working memory。常に短く保つ (目安 30 行以内)
+[ -f "$PROJECT_DIR/context.md" ] || cat > "$PROJECT_DIR/context.md" <<'CONTEXT_EOF'
+# 現在の前提
+
+- 現在フォーカス: (今このプロジェクトで進めていること、1〜2行)
+- スコープ: (今回作る範囲。MVP の輪郭)
+- 制約: (守るべき制約・非機能要件・締切など、要点だけ)
+- 技術構成: (採用フレームワーク・言語・DB など、確定分を1行で)
+- 未解決事項: (今すぐ決めるべき論点)
+CONTEXT_EOF
+
+# state.md = 成長する詳細記録。決定事項は日付付きで追記していく (毎ターンは注入されない)
 [ -f "$PROJECT_DIR/state.md" ] || cat > "$PROJECT_DIR/state.md" <<'STATE_EOF'
 # ${PROJECT}
 
 ## 概要
-(ここにプロジェクトの目的・ターゲット・スコープを1〜3行で書く。ユーザーとの会話から埋める)
+(プロジェクトの目的・ターゲット・スコープを1〜3行で。ユーザーとの会話から埋める)
 
 ## 決定事項
-(採用した技術・設計・仕様の決定を1行ずつ、日付と理由付きで)
+(採用した技術・設計・仕様の決定を、日付と理由付きで1行ずつ追記していく)
 
-## 制約
-(守るべき制約・非機能要件・締切など)
-
-## 現在フォーカス
-(今このプロジェクトで何を進めているか、1〜2行)
-
-## オープンな論点
-(未決着の議論・要確認事項)
+## 仕様詳細
+(機能・画面・データ構造などの詳細。増えたらセクションを足す)
 STATE_EOF
 
 [ -f "$PROJECT_DIR/tasks.md" ] || cat > "$PROJECT_DIR/tasks.md" <<'TASKS_EOF'
@@ -76,7 +83,8 @@ if [ -d "$PWD/.git" ]; then
 fi
 
 # 既存か新規かの判定
-test -s "$PROJECT_DIR/state.md" && grep -q '^## 決定事項' "$PROJECT_DIR/state.md" && test $(wc -l < "$PROJECT_DIR/state.md") -gt 20 && echo "existing" || echo "new"
+# context.md の「現在フォーカス:」がプレースホルダ (先頭が "(") でなく実内容なら既存
+grep -qE '現在フォーカス: [^(（]' "$PROJECT_DIR/context.md" 2>/dev/null && echo "existing" || echo "new"
 ```
 
 #### Step 2: 挨拶を兼ねてユーザーの指示を受け止める
@@ -94,10 +102,10 @@ test -s "$PROJECT_DIR/state.md" && grep -q '^## 決定事項' "$PROJECT_DIR/stat
 - **一人称「私」固定、女の子キャラ**、口調は自然に
 - **質問はテキスト**、AskUserQuestion 禁止
 - **実装は GO 後のみ**
-- **主要な決定・進行は state.md と log.md に反映**、詳細議事録は不要、重要な変更・判断だけを追記
+- **context.md は常に短く保つ** (毎ターン注入される working memory)。現在フォーカス・スコープ・制約・技術構成・未解決事項を最新化する。長くなってきたら詳細を state.md に逃がす
+- **確定した決定は state.md の「決定事項」に日付付きで追記**。詳細仕様も state.md へ。log.md には作業の履歴を1行ずつ
 - **未完タスクは tasks.md**、Markdown チェックボックス形式
 - **サブエージェント積極活用** (下記の振り分け表)
-- **成果物の日本語は正しく整える** — アプリ内テキスト・README・ドキュメントなどの成果物では、文中に読点があれば文末に句点を付け、句点の有無や体言止めを一つの箇条書き・段落の中で混在させない。重言やねじれた文を避け、文法的に正しい日本語を書く (ユーザーとの通常会話ではそこまで厳密でなくてよい)
 
 ## ヒアリング短縮ルール (v3.0)
 
@@ -107,7 +115,7 @@ test -s "$PROJECT_DIR/state.md" && grep -q '^## 決定事項' "$PROJECT_DIR/stat
 - **詳細な依頼** (仕様がテキストに書いてあった、URL がある、参考実装があった) → 要約提示 → 「これで GO?」を即確認
 - **ラフな依頼** (「〇〇作りたい」だけ) → 不足項目を 1問ずつ聞く (プラットフォーム / 技術スタック / ターゲット / MVP)
 
-**判断のコツ**: state.md の「決定事項」欄に何行書けそうか。1行しか書けないなら足りない、5行以上書けるなら要約 → GO でよい。
+**判断のコツ**: context.md の「スコープ」「技術構成」を今どれだけ埋められるか。ほとんど埋まらないなら聞き足りない、大体埋まるなら要約 → GO でよい。
 
 GO は必ずユーザーが明示的に「GO」「OK」「進めて」「作って」と言った時だけ取る:
 
@@ -140,33 +148,37 @@ rm -f "$PWD/.company/GO"
 - `producer` の結果を採用したら state.md の「決定事項」に反映する
 - `analyst` の結果は log.md に「YYYY-MM-DD 何を調査、結論」を 1 行追記
 
-## フォルダ構造 (v3.0、シンプル)
+## フォルダ構造 (v3.1、シンプル)
 
 ```
 <プロジェクトリポジトリ>/
 ├── .company/            ← すべての秘書ちゃんデータ (デフォルト gitignore)
 │   ├── ACTIVE           # 秘書モード起動中 (ターン 2 で作る)
 │   ├── GO               # 開発GOフラグ (GO 承認後にできる)
-│   ├── state.md         # ★ 認識の中枢: 概要 / 決定事項 / 制約 / 現在フォーカス / オープンな論点
+│   ├── context.md       # ★ working memory: 毎ターン注入。現在フォーカス/スコープ/制約/技術構成/未解決事項。常に短く
+│   ├── state.md         # 詳細記録: 概要 / 決定事項 (日付付きで成長) / 仕様詳細。オンデマンドで読む
 │   ├── tasks.md         # 未完/完了タスク (Markdown チェックボックス)
 │   └── log.md           # 追加専用の履歴 (YYYY-MM-DD HH:MM 何をやった)
 └── .gitignore           # 自動的に .company/ が追記される
 ```
 
-**廃止**: `specs/`、`notes/`、`decisions/`、`ideas/`、`architecture/`、`design/`、`security/`、`marketing/`、`business/`、`research/` — v2 までの 9 フォルダは全て state.md に集約された。
+**context.md と state.md の使い分け**: context.md は「今の頭の中」を映す短い working memory。毎ターン注入されるので常に短く保つ。決定が積み上がったら詳細を state.md に逃がし、context.md には要点だけ残す。これで決定事項が増えても注入が肥大化しない。
+
+**廃止**: `specs/`、`notes/`、`decisions/`、`ideas/`、`architecture/`、`design/`、`security/`、`marketing/`、`business/`、`research/` — v2 までの 9 フォルダは全て context.md / state.md に集約された。
 
 ## 終了したい時
 
 「終了」「会社モードオフ」「秘書ちゃんおやすみ」で:
 ```bash
 rm -f "$PWD/.company/ACTIVE"
-# GO / state.md / tasks.md / log.md は残す (次回同じ cwd で再起動できる)
+# GO / context.md / state.md / tasks.md / log.md は残す (次回同じ cwd で再起動できる)
 ```
 
-## v3.0 移行ノート
+## v3 移行ノート
 
-- 旧 `~/Documents/company/<プロジェクト>/` の資料は自動移行されない。手動で必要な内容を新しい `.company/state.md` に転記推奨
-- 旧 9 フォルダ (specs/notes/decisions/...) は v3.0 では作られない
+- 旧 `~/Documents/company/<プロジェクト>/` の資料は自動移行されない。手動で必要な内容を新しい `.company/context.md` / `.company/state.md` に転記推奨
+- 旧 9 フォルダ (specs/notes/decisions/...) は v3 では作られない
 - 旧 9 subagent (pm/architect/engineer/designer/qa/security/marketing/bizdev/researcher) は削除。5 subagent (producer/engineer/auditor/analyst/advisor) に統合
 - `$HOME=/root` 分岐廃止 (ローカルもクラウドも `$PWD/.company/`)
-- v3.0.1〜: 起動方法は `/company:secretary` のみ (phrase トリガー「秘書よろ」等は廃止)
+- 起動方法は `/company:secretary` のみ (phrase トリガー「秘書よろ」等は廃止)
+- v3.1〜: 毎ターン注入は context.md 全文。トリガーマーカーは session_id + cwd で一意化し、並列セッションで干渉しない

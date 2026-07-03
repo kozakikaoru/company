@@ -68,39 +68,42 @@ Claude Code のプラグインマーケットプレイスに追加、または `
 
 **ターン 2** (具体的な指示): init bash が走ってプロジェクト準備:
 - `$PWD/.company/` を作成
-- `state.md` / `tasks.md` / `log.md` の雛形を生成
+- `context.md` / `state.md` / `tasks.md` / `log.md` の雛形を生成
 - `.gitignore` に `.company/` を自動追記 (git repo で、まだ入ってなければ)
 - 指示の処理開始
 
-### ヒアリング短縮 (v3.0)
+### ヒアリング短縮
 
 必ず 4 項目を聞くわけではない:
 - 既存プロジェクトの続き → 何も聞かず実行
 - 詳細な依頼 (仕様が書かれていた) → 要約 → 「GO?」を即確認
 - ラフな依頼 → 不足項目を 1 問ずつ
 
-GO 済み (`state.md` の「決定事項」がある + ユーザーが明示的に承認) で開発フェーズへ。
+ユーザーが明示的に承認したら開発フェーズへ。
 
-### 保存先 (v3.0、シンプル化)
+### 保存先 (v3.1)
 
 ```
 <プロジェクトリポジトリ>/
 ├── .company/            ← 秘書ちゃんデータ全部
 │   ├── ACTIVE           # 起動中フラグ
 │   ├── GO               # 開発GOフラグ (承認後にできる)
-│   ├── state.md         # ★ 認識中枢 (概要/決定事項/制約/フォーカス/オープン論点)
+│   ├── context.md       # ★ working memory (毎ターン注入・常に短い): 現在フォーカス/スコープ/制約/技術構成/未解決事項
+│   ├── state.md         # 詳細記録 (オンデマンド): 概要/決定事項(日付付きで成長)/仕様詳細
 │   ├── tasks.md         # 未完/完了タスク
 │   └── log.md           # 追加専用の履歴
 └── .gitignore           # .company/ が自動追記される (デフォルト)
 ```
 
-**廃止**: v2 までの 9 フォルダ (specs/notes/decisions/ideas/architecture/design/security/marketing/business/research) は全て `state.md` に集約。
+**context.md と state.md の使い分け**: 毎ターン注入されるのは短い `context.md` のみ。決定事項が積み上がっても注入が肥大化しないよう、詳細は `state.md` に逃がして `context.md` は要点だけ保つ。
+
+**廃止**: v2 までの 9 フォルダ (specs/notes/decisions/ideas/architecture/design/security/marketing/business/research) は全て `context.md` / `state.md` に集約。
 
 ---
 
 ## 終了
 
-「終了」「会社モードオフ」「秘書ちゃんおやすみ」で `.company/ACTIVE` が削除されて秘書ちゃんモード解除。データ (`state.md` 等) は残るので次回同じ cwd で再起動可能。
+「終了」「会社モードオフ」「秘書ちゃんおやすみ」で `.company/ACTIVE` が削除されて秘書ちゃんモード解除。データ (`context.md` / `state.md` 等) は残るので次回同じ cwd で再起動可能。
 
 ---
 
@@ -122,7 +125,7 @@ ls $PWD/.company/ACTIVE
 
 ### v2 からの移行
 
-- 旧 `~/Documents/company/<プロジェクト>/` の中身は自動移行されない。必要な情報を新しい `<repo>/.company/state.md` に手動転記推奨
+- 旧 `~/Documents/company/<プロジェクト>/` の中身は自動移行されない。必要な情報を新しい `<repo>/.company/context.md` / `state.md` に手動転記推奨
 - 旧 `~/Documents/company/.current` などのグローバル状態も廃止
 - 9 サブエージェント → 5 サブエージェントに削減、旧 agent 名は使えない (`pm`/`architect` → `producer`、`engineer` (継承)、`qa` + `security` → `auditor`、`researcher` → `analyst`、新設 `advisor`)
 
