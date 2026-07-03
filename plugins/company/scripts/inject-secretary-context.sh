@@ -1,8 +1,8 @@
 #!/bin/bash
-# UserPromptSubmit hook for the "company" plugin (v3.0).
+# UserPromptSubmit hook for the "company" plugin (v3.0.1).
 #
 # 責務:
-#   1. トリガーターン (「秘書よろ」等のみ) を判定して TRIGGER_MARKER を立てる
+#   1. トリガーターン (/company:secretary のみ) を判定して TRIGGER_MARKER を立てる
 #      → PreToolUse がそれを見て全ツールを物理ブロックする
 #   2. 秘書ちゃんモード起動中 ($PWD/.company/ACTIVE がある) なら、
 #      毎ターン秘書ちゃんとしての最小コンテキストを注入する:
@@ -42,14 +42,13 @@ esac
 # v3.0: 保存先は常に $PWD/.company (HOME=/root 分岐なし)
 PROJECT_DIR="$CWD/.company"
 
-# === トリガーターン判定 ===
+# === トリガーターン判定 (v3.0.1: /company:secretary のみ、phrase 廃止) ===
 TRIGGER_MARKER="/tmp/company-plugin-trigger-turn"
 rm -f "$TRIGGER_MARKER" 2>/dev/null || true
 if [ -n "$USER_PROMPT" ]; then
   STRIPPED=$(printf '%s' "$USER_PROMPT" \
-    | sed -E 's|秘書ちゃんお願い||g; s|秘書よろ||g; s|秘書お願い||g; s|秘書ちゃん||g; s|/company:hisho||g; s|/company:company||g' \
+    | sed -E 's|/company:secretary||g' \
     | tr -d '[:space:]、。!?！？～~・,\.\?\!')
-  if [ "$STRIPPED" = "秘書" ]; then STRIPPED=""; fi
   if [ -z "$STRIPPED" ]; then
     touch "$TRIGGER_MARKER" 2>/dev/null || true
   fi

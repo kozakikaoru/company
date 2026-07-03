@@ -56,14 +56,11 @@ Claude Code のプラグインマーケットプレイスに追加、または `
 
 ### 起動
 
-以下のいずれか:
-- `/company:hisho`
-- `/company:company`
-- 会話中に「秘書ちゃんお願い」「秘書よろ」「秘書ちゃん」
+**`/company:secretary`** で起動 (v3.0.1〜: 起動方法はこれのみ、phrase トリガー「秘書よろ」等は廃止)
 
 ### 起動時の挙動 (v3.0 の 2 段階起動)
 
-**ターン 1** (「秘書よろ」等トリガーだけ): 挨拶テキストのみ、ツール使用ゼロ (`PreToolUse` フックが Bash/Read/AskUserQuestion 等を `exit 2` で物理拒否)
+**ターン 1** (`/company:secretary` コマンドだけ): 挨拶テキストのみ、ツール使用ゼロ (`PreToolUse` フックが Bash/Read/AskUserQuestion 等を `exit 2` で物理拒否)
 
 **ターン 2** (具体的な指示): init bash が走ってプロジェクト準備:
 - `$PWD/.company/` を作成
@@ -110,7 +107,7 @@ GO 済み (`state.md` の「決定事項」がある + ユーザーが明示的�
 ```bash
 ls $PWD/.company/ACTIVE
 ```
-無ければ未起動 → `/company:hisho` か「秘書ちゃんお願い」で起動。
+無ければ未起動 → `/company:secretary` で起動。
 
 ### hook がエラーで動かない
 
@@ -137,7 +134,7 @@ rm -f $PWD/.company/ACTIVE
 
 ### 秘書ちゃんの人格を変えたい
 
-`plugins/company/skills/hisho/SKILL.md` の冒頭「秘書ちゃんは 女の子キャラ...」の記述を変更。`company/SKILL.md` は symlink なので片方書き換えで両方反映。
+`plugins/company/skills/secretary/SKILL.md` の冒頭「秘書ちゃんは 女の子キャラ...」の記述を変更。
 
 ### サブエージェントを増やしたい
 

@@ -1,1 +1,0 @@
-../hisho/SKILL.md
