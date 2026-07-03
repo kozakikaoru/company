@@ -1,8 +1,8 @@
 # 🏢 company plugin
 
-あなた専用の **仮想会社** プラグイン (v3.0)。秘書ちゃんが受付になり、**5 つの役割別サブエージェント**にタスクを振り分けて、AI 主体で app 開発を加速します。
+あなた専用の **仮想会社** プラグイン。秘書ちゃんが受付になり、**5 つの役割別サブエージェント**にタスクを振り分けて、AI 主体で app 開発を加速します。
 
-**設計思想 (v3.0〜)**: 「人間が読む仕様書」から「AI が使い倒す状態管理」へ。全プロジェクトデータは `<repo>/.company/` に集約 (デフォルト `.gitignore` 追加、必要ならコミット運用に切替可)。
+**設計思想**: 「人間が読む仕様書」から「AI が使い倒す状態管理」へ。全プロジェクトデータは `<repo>/.company/` に集約 (デフォルト `.gitignore` 追加、必要ならコミット運用に切替可)。
 
 ---
 
@@ -56,13 +56,13 @@ Claude Code のプラグインマーケットプレイスに追加、または `
 
 ### 起動
 
-**`/company:secretary`** で起動 (v3.0.1〜: 起動方法はこれのみ、phrase トリガー「秘書よろ」等は廃止)
+**`/company:secretary`** で起動 (起動方法はこれのみ)
 
 ### README 作成 (`/company:readme`)
 
-`/company:readme` で **ポートフォリオ用 README** を作成できる (v3.1.0〜)。採用担当・エージェント・他開発者が読む想定の、素朴で誠実なトーンの README を、決まった構成・粒度で生成する。技術スタックやディレクトリ構成はリポジトリから自動抽出し、不足情報だけ確認。いきなり `README.md` を上書きせず `docs/README-draft.md` に草案を書いてレビューを挟む。秘書ちゃんモード中に「README 作って」と頼んでも発動する。
+`/company:readme` で README を作成できる。エンドユーザー向けの宣伝文ではなく、開発者が読む README を決まった構成・粒度で生成する。技術スタックやディレクトリ構成はリポジトリから自動抽出し、不足情報だけ確認する。全文を提示してレビューを挟み、承認されたら `README.md` に反映する。秘書ちゃんモード中に「README 作って」と頼んでも発動する。
 
-### 起動時の挙動 (v3.0 の 2 段階起動)
+### 起動時の挙動 (2 段階起動)
 
 **ターン 1** (`/company:secretary` コマンドだけ): 挨拶テキストのみ、ツール使用ゼロ (`PreToolUse` フックが Bash/Read/AskUserQuestion 等を `exit 2` で物理拒否)
 
@@ -81,7 +81,7 @@ Claude Code のプラグインマーケットプレイスに追加、または `
 
 ユーザーが明示的に承認したら開発フェーズへ。
 
-### 保存先 (v3.1)
+### 保存先
 
 ```
 <プロジェクトリポジトリ>/
@@ -96,14 +96,6 @@ Claude Code のプラグインマーケットプレイスに追加、または `
 ```
 
 **context.md と state.md の使い分け**: 毎ターン注入されるのは短い `context.md` のみ。決定事項が積み上がっても注入が肥大化しないよう、詳細は `state.md` に逃がして `context.md` は要点だけ保つ。
-
-**廃止**: v2 までの 9 フォルダ (specs/notes/decisions/ideas/architecture/design/security/marketing/business/research) は全て `context.md` / `state.md` に集約。
-
----
-
-## 終了
-
-「終了」「会社モードオフ」「秘書ちゃんおやすみ」で `.company/ACTIVE` が削除されて秘書ちゃんモード解除。データ (`context.md` / `state.md` 等) は残るので次回同じ cwd で再起動可能。
 
 ---
 
@@ -123,12 +115,6 @@ ls $PWD/.company/ACTIVE
 ```
 を直接実行。秘書モード起動中なら注入コンテキストが出る。
 
-### v2 からの移行
-
-- 旧 `~/Documents/company/<プロジェクト>/` の中身は自動移行されない。必要な情報を新しい `<repo>/.company/context.md` / `state.md` に手動転記推奨
-- 旧 `~/Documents/company/.current` などのグローバル状態も廃止
-- 9 サブエージェント → 5 サブエージェントに削減、旧 agent 名は使えない (`pm`/`architect` → `producer`、`engineer` (継承)、`qa` + `security` → `auditor`、`researcher` → `analyst`、新設 `advisor`)
-
 ### 手動で秘書モードを解除したい
 
 ```bash
@@ -145,4 +131,4 @@ rm -f $PWD/.company/ACTIVE
 
 ### サブエージェントを増やしたい
 
-`plugins/company/agents/<新agent>.md` を追加。frontmatter の `description` に発動条件を書く。安易に増やさないこと (5 で構造化されているのが v3.0 の売り)。
+`plugins/company/agents/<新agent>.md` を追加。frontmatter の `description` に発動条件を書く。安易に増やさないこと (5 役割で構造化されているのが売り)。
