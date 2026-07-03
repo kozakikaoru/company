@@ -1,6 +1,6 @@
 {
   "name": "company-marketplace",
-  "version": "2.3.1",
+  "version": "3.0.0",
   "owner": {
     "name": "kayu"
   },
@@ -9,8 +9,8 @@
     {
       "name": "company",
       "source": "./plugins/company",
-      "description": "[v2.3.1] あなた専用の仮想会社。秘書ちゃんが受付になり、PM・アーキテクト・エンジニア・デザイナー・QA・セキュリティ・マーケ・ビジネス・リサーチャーの9つの専門家に作業を振り分けます。ローカル実行 (推奨) は ~/Documents/company/<cwd名>/ に、リモート ($HOME=/root) は ./.company/ に保存。起動直後ターンは挨拶のみ。秘書ちゃんの一人称は「私」固定。",
-      "version": "2.3.1"
+      "description": "[v3.0.0] あなた専用の仮想会社。秘書ちゃんが受付になり、5役割サブエージェント (plan/implement/verify/research/explain) にタスクを自動振り分け。全プロジェクトデータは <repo>/.company/ に集約 (state.md + tasks.md + log.md)、init 時に .gitignore 自動追記。起動直後ターンは挨拶のみ (ツール物理ブロック)。",
+      "version": "3.0.0"
     }
   ]
 }

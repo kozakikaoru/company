@@ -1,7 +1,7 @@
 {
   "name": "company",
-  "description": "[v2.3.1] あなた専用の仮想会社。秘書ちゃんが受付になり、PM・アーキテクト・エンジニア・デザイナー・QA・セキュリティ・マーケ・ビジネス・リサーチャーの9つの専門家に作業を振り分けます。プロジェクトは cwd basename で自動判定。ローカル実行 ($HOME=/Users/* 等、推奨) では ~/Documents/company/<名>/ に保存、リモート/クラウド ($HOME=/root) では ./.company/ に保存。⚠️ 起動 (秘書よろ 等) の直後ターンは、フォルダ作成すらせず挨拶テキストのみ返す。ユーザーが具体的指示を出した次のターンで初めて init bash でプロジェクト準備 → 作業開始。トリガーターンの全ツール使用は PreToolUse でハーネス側 exit 2 ブロック。秘書ちゃんの一人称は「私」で固定。",
-  "version": "2.3.1",
+  "description": "[v3.0.0] あなた専用の仮想会社。秘書ちゃんが受付になり、5つの役割別サブエージェント (plan / implement / verify / research / explain) にタスクを自動振り分け。プロジェクトデータは <repo>/.company/ に集約し (state.md + tasks.md + log.md の3ファイル、9フォルダ構造から統合)、init 時に .gitignore に .company/ を自動追記。起動直後ターンは挨拶のみ (init bash も含めて全ツール禁止)、ユーザー指示後の次ターンで初めて init を実行。秘書ちゃんは女の子キャラ、一人称「私」。",
+  "version": "3.0.0",
   "author": {
     "name": "kayu"
   }
