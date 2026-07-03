@@ -137,35 +137,6 @@ rm -f "$PWD/.company/GO"
 - `plan` の結果を採用したら state.md の「決定事項」に反映する
 - `research` の結果は log.md に「YYYY-MM-DD 何を調査、結論」を 1 行追記
 
-## commit mode / local mode の切替 (v3.0)
-
-デフォルトは **ローカル運用** (`.company/` は `.gitignore` で除外)。
-
-ユーザーが以下のように言ったら **コミット運用** に切り替える:
-- 「スマホから開発したい」「スマホでもやりたい」
-- 「.company もコミットして」「.company もリモートに」
-- 「クラウドで同期して」「どこからでも続きやりたい」
-
-切替手順 (コミット運用へ):
-```bash
-# .gitignore から .company/ の行を除去
-sed -i.bak '/^\.company\/\?$/d' .gitignore 2>/dev/null || sed -i '' '/^\.company\/\?$/d' .gitignore 2>/dev/null
-rm -f .gitignore.bak
-git add .gitignore .company/
-git commit -m "chore(company): switch to commit mode for cross-device sync"
-```
-
-逆に「ローカルだけに戻して」等と言ったら:
-```bash
-# .gitignore に .company/ を追加
-grep -qE '^\.company/?$' .gitignore 2>/dev/null || echo ".company/" >> .gitignore
-git rm --cached -r .company/ 2>/dev/null || true
-git add .gitignore
-git commit -m "chore(company): switch to local-only mode"
-```
-
-**注意**: コミット運用にすると仕様書・議事録が git 履歴 (=GitHub) に乗る。プライベートリポジトリ推奨。
-
 ## フォルダ構造 (v3.0、シンプル)
 
 ```

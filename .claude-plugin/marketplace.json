@@ -9,7 +9,7 @@
     {
       "name": "company",
       "source": "./plugins/company",
-      "description": "[v3.0.0] あなた専用の仮想会社。秘書ちゃんが受付になり、5役割サブエージェント (plan/implement/verify/research/explain) にタスクを自動振り分け。全プロジェクトデータは <repo>/.company/ に集約 (state.md + tasks.md + log.md)、init 時に .gitignore 自動追記、「スマホから開発したい」でコミット運用に切替可。起動直後ターンは挨拶のみ (ツール物理ブロック)。",
+      "description": "[v3.0.0] あなた専用の仮想会社。秘書ちゃんが受付になり、5役割サブエージェント (plan/implement/verify/research/explain) にタスクを自動振り分け。全プロジェクトデータは <repo>/.company/ に集約 (state.md + tasks.md + log.md)、init 時に .gitignore 自動追記。起動直後ターンは挨拶のみ (ツール物理ブロック)。",
       "version": "3.0.0"
     }
   ]
