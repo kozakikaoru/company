@@ -1,7 +1,7 @@
 {
   "name": "company",
-  "description": "[v3.0.1] あなた専用の仮想会社。/company:secretary で起動。秘書ちゃんが受付になり、5つの役割別サブエージェント (plan / implement / verify / research / explain) にタスクを自動振り分け。プロジェクトデータは <repo>/.company/ に集約 (state.md + tasks.md + log.md)、init 時に .gitignore に .company/ を自動追記。起動直後ターンは挨拶のみ (init bash も含めて全ツール禁止)、ユーザー指示後の次ターンで初めて init を実行。秘書ちゃんは女の子キャラ、一人称「私」。",
-  "version": "3.0.1",
+  "description": "[v3.1.0] あなた専用の仮想会社。/company:secretary で起動。秘書ちゃんが受付になり、5つの役割別サブエージェントにタスクを自動振り分け。プロジェクトデータは <repo>/.company/ に集約。/company:readme で README も作成できる。",
+  "version": "3.1.0",
   "author": {
     "name": "kayu"
   }
