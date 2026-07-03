@@ -9,7 +9,7 @@
     {
       "name": "company",
       "source": "./plugins/company",
-      "description": "[v3.1.0] あなた専用の仮想会社。/company:secretary で起動。秘書ちゃんが受付になり、5つの役割別サブエージェントにタスクを自動振り分け。プロジェクトデータは <repo>/.company/ に集約。/company:readme でポートフォリオ用 README も作成できる。",
+      "description": "[v3.1.0] あなた専用の仮想会社。/company:secretary で起動。秘書ちゃんが受付になり、5つの役割別サブエージェントにタスクを自動振り分け。プロジェクトデータは <repo>/.company/ に集約。/company:readme で README も作成できる。",
       "version": "3.1.0"
     }
   ]
