@@ -1,8 +1,8 @@
 #!/bin/bash
-# PreToolUse hook for the "company" plugin (v3.0).
+# PreToolUse hook for the "company" plugin (v3.1).
 # トリガーターン (=/company:secretary の起動直後ターン) は対象ツールを物理ブロックする。
 # トリガーターン判定は UserPromptSubmit (inject-secretary-context.sh) が
-# /tmp/company-plugin-trigger-turn を作るかどうかで行う。
+# session_id + cwd で一意化したマーカーを作るかどうかで行う。
 
 set -e
 
@@ -21,7 +21,19 @@ case "$TOOL_NAME" in
   *) exit 0 ;;
 esac
 
-TRIGGER_MARKER="/tmp/company-plugin-trigger-turn"
+SESSION_ID=$(printf '%s' "$INPUT" | python3 -c "
+import sys, json
+try:
+    print(json.load(sys.stdin).get('session_id', 'nosession'))
+except Exception:
+    print('nosession')
+" 2>/dev/null || echo "nosession")
+
+# inject-secretary-context.sh と同じ規則でマーカーパスを再構成する
+SESSION_ID=$(printf '%s' "$SESSION_ID" | tr -cd 'A-Za-z0-9_-')
+[ -z "$SESSION_ID" ] && SESSION_ID="nosession"
+CWD_HASH=$(pwd | python3 -c "import sys,hashlib; print(hashlib.sha1(sys.stdin.buffer.read().rstrip(b'\n')).hexdigest()[:12])" 2>/dev/null || echo "nohash")
+TRIGGER_MARKER="/tmp/company-plugin-trigger-${SESSION_ID}-${CWD_HASH}"
 
 if [ ! -f "$TRIGGER_MARKER" ]; then
   exit 0
