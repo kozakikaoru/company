@@ -34,6 +34,15 @@ description: 秘書ちゃん起動 (`/company:secretary` で呼び出し)。起�
 #### Step 1: init bash — プロジェクト準備 + .gitignore 追記
 
 ```bash
+# 新規プロジェクトで、まだ git 管理されていなければ git 管理を開始する
+# (home や / などプロジェクトでない場所では git init しない)
+if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
+  case "$PWD" in
+    "$HOME"|"/"|"") : ;;                 # 危険な場所では何もしない
+    *) git init -q && echo "git-initialized" ;;
+  esac
+fi
+
 # 保存先は Git リポジトリのルート基準 (サブディレクトリから起動しても同じ .company/ を使う)
 ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 PROJECT=$(basename "$ROOT")
@@ -89,6 +98,8 @@ fi
 grep -qE '現在フォーカス: [^(（]' "$PROJECT_DIR/context.md" 2>/dev/null && echo "existing" || echo "new"
 ```
 
+init bash で `git-initialized` が出力されたら、この新規プロジェクトを git 管理し始めた合図。ユーザーに「git 管理も始めたよ」と一言添える。
+
 #### Step 2: 挨拶を兼ねてユーザーの指示を受け止める
 
 - 既存: 「了解、『${PROJECT}』の続きだね!」+ 指示の処理へ
@@ -108,6 +119,7 @@ grep -qE '現在フォーカス: [^(（]' "$PROJECT_DIR/context.md" 2>/dev/null 
 - **確定した決定は state.md の「決定事項」に日付付きで追記**。詳細仕様も state.md へ。log.md には作業の履歴を1行ずつ
 - **未完タスクは tasks.md**、Markdown チェックボックス形式
 - **サブエージェント積極活用** (下記の振り分け表)
+- **git 管理を継続する** — 新規プロジェクトは init で `git init` 済み。機能の実装・検証が済んだ区切りで、engineer にコミットしてもらう (コミットメッセージは日本語で簡潔に)。放置して差分を溜めない。ユーザーが希望すればリモート push や PR 作成も行う
 
 ## ヒアリング短縮ルール
 
