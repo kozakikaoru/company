@@ -68,10 +68,13 @@ claude --plugin-dir /path/to/company
 **ターン 1** (`/company:secretary` コマンドだけ): 挨拶テキストのみ、ツール使用ゼロ (`PreToolUse` フックが Bash/Read/AskUserQuestion 等を `exit 2` で物理拒否)
 
 **ターン 2** (具体的な指示): init bash が走ってプロジェクト準備:
-- `$PWD/.company/` を作成
+- まだ git 管理されていない新規プロジェクトなら自動で `git init` (home や / では実行しない)
+- リポジトリルートに `.company/` を作成
 - `context.md` / `state.md` / `tasks.md` / `log.md` の雛形を生成
-- `.gitignore` に `.company/` を自動追記 (git repo で、まだ入ってなければ)
+- `.gitignore` に `.company/` を自動追記
 - 指示の処理開始
+
+以後、機能の実装・検証が済んだ区切りで engineer がコミットする (リモート push や PR はユーザーが希望したときのみ)。
 
 ### ヒアリング短縮
 
