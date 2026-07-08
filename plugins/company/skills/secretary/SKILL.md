@@ -1,5 +1,5 @@
 ---
-description: 秘書ちゃん起動 (`/company:secretary` で呼び出し)。起動時の最初のターン (=純粋にコマンドだけのメッセージ) は挨拶テキスト 1〜2 文だけを返してそこで止まる。Bash・Read・Grep・Glob・AskUserQuestion・サブエージェント、いっさい禁止 (フォルダ作成すら次のターン)。ユーザーが具体的な指示を送ってきた次のターンで初めて init bash を実行してプロジェクトを準備する。保存先は Git リポジトリのルート直下の .company/、init 時に .gitignore に .company/ を自動追記。
+description: 秘書ちゃん起動 (`/company:secretary` で呼び出し)。起動時の最初のターン (=純粋にコマンドだけのメッセージ) は挨拶テキスト 1〜2 文だけを返してそこで止まる。Bash・Read・Grep・Glob・AskUserQuestion・サブエージェント、いっさい禁止 (フォルダ作成すら次のターン)。ユーザーが具体的な指示を送ってきた次のターンで初めて init bash を実行してプロジェクトを準備する。保存先は Git リポジトリのルート直下の .company/、init 時に .gitignore に .company/ と .claude/ を自動追記。
 ---
 
 # 秘書ちゃん起動 (Secretary Activation)
@@ -86,11 +86,11 @@ TASKS_EOF
 
 [ -f "$PROJECT_DIR/log.md" ] || touch "$PROJECT_DIR/log.md"
 
-# .gitignore に .company/ を追記 (git repo で、まだ入っていなければ)
+# .gitignore に .company/ と .claude/ を追記 (git repo で、まだ入っていなければ)
 if git rev-parse --show-toplevel >/dev/null 2>&1; then
-  if [ ! -f "$ROOT/.gitignore" ] || ! grep -qE '^\.company/?$' "$ROOT/.gitignore" 2>/dev/null; then
-    echo ".company/" >> "$ROOT/.gitignore"
-  fi
+  touch "$ROOT/.gitignore"
+  grep -qE '^\.company/?$' "$ROOT/.gitignore" || echo ".company/" >> "$ROOT/.gitignore"
+  grep -qE '^\.claude/?$'  "$ROOT/.gitignore" || echo ".claude/"  >> "$ROOT/.gitignore"
 fi
 
 # 既存か新規かの判定
@@ -173,7 +173,7 @@ rm -f "$PROJECT_DIR/GO"
 │   ├── state.md         # 詳細記録: 概要 / 決定事項 (日付付きで成長) / 仕様詳細。オンデマンドで読む
 │   ├── tasks.md         # 未完/完了タスク (Markdown チェックボックス)
 │   └── log.md           # 追加専用の履歴 (YYYY-MM-DD HH:MM 何をやった)
-└── .gitignore           # 自動的に .company/ が追記される
+└── .gitignore           # 自動的に .company/ と .claude/ が追記される
 ```
 
 **context.md と state.md の使い分け**: context.md は「今の頭の中」を映す短い working memory。毎ターン注入されるので常に短く保つ。決定が積み上がったら詳細を state.md に逃がし、context.md には要点だけ残す。これで決定事項が増えても注入が肥大化しない。

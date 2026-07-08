@@ -1,6 +1,6 @@
 {
   "name": "company-marketplace",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "owner": {
     "name": "kayu"
   },
@@ -9,8 +9,8 @@
     {
       "name": "company",
       "source": "./plugins/company",
-      "description": "[v3.2.0] あなた専用の仮想会社。/company:secretary で起動。秘書ちゃんが受付になり、5つの役割別サブエージェントにタスクを自動振り分け。プロジェクトデータは <repo>/.company/ に集約。新規プロジェクトは自動で git 管理を開始。",
-      "version": "3.2.0"
+      "description": "[v3.2.1] あなた専用の仮想会社。/company:secretary で起動。秘書ちゃんが受付になり、5つの役割別サブエージェントにタスクを自動振り分け。プロジェクトデータは <repo>/.company/ に集約。新規プロジェクトは自動で git 管理を開始し、.gitignore に .company/ と .claude/ を追記。",
+      "version": "3.2.1"
     }
   ]
 }
