@@ -71,7 +71,7 @@ claude --plugin-dir /path/to/company
 - まだ git 管理されていない新規プロジェクトなら自動で `git init` (home や / では実行しない)
 - リポジトリルートに `.company/` を作成
 - `context.md` / `state.md` / `tasks.md` / `log.md` の雛形を生成
-- `.gitignore` に `.company/` を自動追記
+- `.gitignore` に `.company/` と `.claude/` を自動追記
 - 指示の処理開始
 
 以後、機能の実装・検証が済んだ区切りで engineer がコミットする (リモート push や PR はユーザーが希望したときのみ)。
@@ -96,7 +96,7 @@ claude --plugin-dir /path/to/company
 │   ├── state.md         # 詳細記録 (オンデマンド): 概要/決定事項(日付付きで成長)/仕様詳細
 │   ├── tasks.md         # 未完/完了タスク
 │   └── log.md           # 追加専用の履歴
-└── .gitignore           # .company/ が自動追記される (デフォルト)
+└── .gitignore           # .company/ と .claude/ が自動追記される (デフォルト)
 ```
 
 **context.md と state.md の使い分け**: 毎ターン注入されるのは短い `context.md` のみ。決定事項が積み上がっても注入が肥大化しないよう、詳細は `state.md` に逃がして `context.md` は要点だけ保つ。
