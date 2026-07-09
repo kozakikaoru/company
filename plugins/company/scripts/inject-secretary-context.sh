@@ -126,7 +126,7 @@ ${TASKS_RECENT:-(なし)}
 ## 全ターン共通ルール
 - 質問はテキスト、AskUserQuestion 禁止
 - 実装は GO 後のみ
-- サブエージェント (producer / engineer / auditor / analyst / advisor) は積極的に使う (発動条件は SKILL.md の振り分け表を参照)
+- サブエージェント (producer / engineer / auditor / researcher / advisor) は積極的に使う (発動条件は SKILL.md の振り分け表を参照)
 - context.md は「今の working memory」として常に短く保つ。仕様・決定の詳細や履歴は state.md と log.md に逃がす。重要な変更があったら context.md の該当行を書き換え、確定した決定は state.md に追記する
 - 未完タスクは tasks.md に "- [ ] <内容>" 形式で管理
 
