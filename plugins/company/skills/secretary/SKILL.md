@@ -50,6 +50,8 @@ PROJECT_DIR="$ROOT/.company"
 
 mkdir -p "$PROJECT_DIR"
 touch "$PROJECT_DIR/ACTIVE"
+# GO / agent-reach.approved / agent-reach.declined は承認・辞退の時にだけ作る空フラグ。
+# ここでは先回りして作らない (未確認 = フラグ無しが初期状態)。
 
 # context.md / state.md / tasks.md / log.md を新規作成 (存在しなければ)
 
@@ -96,6 +98,13 @@ fi
 # 既存か新規かの判定
 # context.md の「現在フォーカス:」がプレースホルダ (先頭が "(") でなく実内容なら既存
 grep -qE '現在フォーカス: [^(（]' "$PROJECT_DIR/context.md" 2>/dev/null && echo "existing" || echo "new"
+
+# agent-reach の存在チェック (無くて未確認なら、この後ユーザーに一度だけ提案する)
+if command -v agent-reach >/dev/null 2>&1; then
+  echo "agent-reach: ok"
+elif [ ! -f "$PROJECT_DIR/agent-reach.approved" ] && [ ! -f "$PROJECT_DIR/agent-reach.declined" ]; then
+  echo "agent-reach: missing-unasked"
+fi
 ```
 
 init bash で `git-initialized` が出力されたら、この新規プロジェクトを git 管理し始めた合図。ユーザーに「git 管理も始めたよ」と一言添える。
@@ -104,6 +113,11 @@ init bash で `git-initialized` が出力されたら、この新規プロジェ
 
 - 既存: 「了解、『${PROJECT}』の続きだね!」+ 指示の処理へ
 - 新規: 「了解、『${PROJECT}』として始めるね!」+ ヒアリング (下記) へ
+- **init が `agent-reach: missing-unasked` を出していたら** — agent-reach 未導入 × 未確認 (approved も declined も無い) の合図。**ユーザーの指示は普通に進めつつ**、このターンの返答に **一度だけ** テキストで添えて聞く (AskUserQuestion は使わない)。例: 「agent-reach 入れとくと、調査が YouTube / RSS / GitHub 横断で強くなるよ。入れとく? pipx で隔離導入されるから環境は汚れないよ🎀」
+  - **承認された** → `touch "$PROJECT_DIR/agent-reach.approved"`。**その場では install しない** (init を重くしないため)。実際の install は researcher が次に重い調査をするとき自動で走るので、ユーザーには「次に本格的に調べるとき入れるね」と伝える
+  - **辞退・スルー** → `touch "$PROJECT_DIR/agent-reach.declined"` (「一旦入れないでおくね、欲しくなったら言って」)
+  - **一度フラグを立てたら二度と聞かない。** 未確認のまま (どちらも `touch` しなかった) なら、次の起動時に init がまた `missing-unasked` を出すので、そのときまた聞く
+  - `agent-reach: ok` (導入済み) や出力が無い (フラグ有り) ときは、何も聞かない
 
 #### Step 3: フェーズに応じて動く
 
@@ -162,6 +176,14 @@ rm -f "$PROJECT_DIR/GO"
 - `engineer` の直後は **必ず** `auditor` を呼ぶ (テスト・型・lint・レビュー)
 - `producer` の結果を採用したら state.md の「決定事項」に反映する
 - `researcher` の結果は log.md に「YYYY-MM-DD 何を調査、結論 + 出典 (URL+取得日)」を 1 行追記
+- **[保険] `researcher` が結果末尾に `【agent-reach 提案】` を返してきたら** — agent-reach の確認は **基本 init 時 (Step 2) に済ませる**。ただし init で聞き逃した等で researcher から提案が返ってきた場合も、同じ要領で対応する (重い調査で agent-reach が未導入・未確認のとき researcher はこのブロックを返す)。ユーザーに **テキストで一度だけ** 確認する (AskUserQuestion は使わない)。例: 「より深く横断検索できる agent-reach、入れとく? pipx で隔離導入されるから環境は汚れないよ」
+  - **承認された** → `touch "$PROJECT_DIR/agent-reach.approved"` (「入れとくね!」)。install は走らせず、researcher が次の重い調査のとき、まだ入っていなければ自動で試みる
+  - **辞退・スルー** → `touch "$PROJECT_DIR/agent-reach.declined"` (「一旦入れないでおくね、欲しくなったら言って」)
+  - **どちらかを `touch` したら二度と聞かない。** 後日ユーザーが気を変えたら、今のフラグを `rm` してもう一方を `touch` する (declined→approved も approved→declined も同じ手順)
+- **`researcher` が結果末尾に `【参考: agent-reach があると捗る】` を返してきたら** — これは **declined (辞退済み) のまま重い調査をした** ときのリマインド。**確認を迫るものではない** ので、ユーザーに **軽く伝えるだけ** でよい (AskUserQuestion は使わない)。例: 「(参考) 今回みたいな重い調査は agent-reach 入れると強くなるよ。欲しくなったら言ってね🎀」
+  - **approved / declined の touch はしない** (declined のまま維持する)。install も走らせない
+  - もしユーザーがこれを見て「じゃあ入れる」と気を変えたら、既存の気変わりフローで `rm -f "$PROJECT_DIR/agent-reach.declined"` → `touch "$PROJECT_DIR/agent-reach.approved"`
+- **2 つを取り違えない**: 未確認の `【agent-reach 提案】` は **確認してフラグを touch する** (承認を迫る)。declined の `【参考: agent-reach があると捗る】` は **軽く伝えるだけでフラグは touch しない** (承認は求めない)。
 
 ## フォルダ構造
 
@@ -170,11 +192,15 @@ rm -f "$PROJECT_DIR/GO"
 ├── .company/            ← すべての秘書ちゃんデータ (デフォルト gitignore)
 │   ├── ACTIVE           # 秘書モード起動中 (ターン 2 で作る)
 │   ├── GO               # 開発GOフラグ (GO 承認後にできる)
+│   ├── agent-reach.approved  # researcher の agent-reach 提案をユーザーが承認した時だけ生成。あれば重い調査時に自動 install
+│   ├── agent-reach.declined  # 辞退した時だけ生成。承認を迫る提案は止め、(未導入なら) フォールバックで調査 (重い調査時のみ参考リマインドを軽く添える)
 │   ├── context.md       # ★ working memory: 毎ターン注入。現在フォーカス/スコープ/制約/技術構成/未解決事項。常に短く
 │   ├── state.md         # 詳細記録: 概要 / 決定事項 (日付付きで成長) / 仕様詳細。オンデマンドで読む
 │   ├── tasks.md         # 未完/完了タスク (Markdown チェックボックス)
 │   └── log.md           # 追加専用の履歴 (YYYY-MM-DD HH:MM 何をやった)
 └── .gitignore           # 自動的に .company/ と .claude/ が追記される
 ```
+
+**空フラグについて**: `ACTIVE` / `GO` / `agent-reach.approved` / `agent-reach.declined` は中身を持たず、**存在するかどうかだけで状態を判定する** 空ファイル。`touch` で立て、`rm` で下ろす。
 
 **context.md と state.md の使い分け**: context.md は「今の頭の中」を映す短い working memory。毎ターン注入されるので常に短く保つ。決定が積み上がったら詳細を state.md に逃がし、context.md には要点だけ残す。これで決定事項が増えても注入が肥大化しない。
